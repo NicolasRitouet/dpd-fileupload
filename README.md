@@ -1,7 +1,7 @@
 File uploader for Deployd
 =========================
 
-Module for Deployd to upload file into a custom resource.
+Module for Deployd to upload files.
 
 
 Installation
