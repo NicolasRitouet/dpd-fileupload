@@ -23,8 +23,8 @@ You have to create a directory in the "public" directory of your project (defaul
 Usage
 -----
 ### Upload a file
-Method POST or PUT (set content type to "multipart/form-data")
-    todo add example
+Method POST or PUT (set content type to "multipart/form-data"), send "subdir" as request param to save the file in a sub directory
+    todo: add client example
 
 ### Get the list of files
 Method GET
@@ -49,11 +49,11 @@ GET of one item is planned. That would allow us to remove the upload directory f
 
 Todo
 ----
+- fix error when filename has space in it (in the DELETE method)
 - check if file already exist (upload anyway and put a (1) in the filename ?)
 - add client example
+- Improve callback when multiple files are uploaded (callback method of insert shouldn't be empty)
 - Allow to send an optional filename as parameter
-- Allow "subdir" optional param to store the file in a given sub directory
-- Fix callback problem when multiple files are uploaded (response contains only one file, but all are correctly uploaded and stored)
 - send an event when file is uploaded
 - Find a better way to get the path of the upload directory
 - Implement GET of one file (stream file ?)

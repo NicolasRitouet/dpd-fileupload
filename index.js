@@ -54,57 +54,55 @@ Fileupload.prototype.handle = function (ctx, next) {
         domain = {url: ctx.url};
 
     if (req.method === "POST" || req.method === "PUT") {
-        var form = new formidable.IncomingForm();
-        form.uploadDir = this.config.fullDirectory;
-        var remaining = 0;
-        var files = [];
-        var error;
+        console.log("Subdir : ", req.query.subdir);
+        var form = new formidable.IncomingForm(),
+            files = [];
+        var uploadDir = this.config.fullDirectory;
 
-        var uploadedFile = function(err) {
-            if (err) {
-                error = err;
-                return ctx.done(err);
-            } else if (!err) {
-                remaining--;
-                if (remaining <= 0) {
-                    if (req.headers.referer) {
-                        httpUtil.redirect(ctx.res, req.headers.referer || '/');
-                    } else {
-                        ctx.done(null, { statusCode: 200, message: 'Files (' + files.join(", ") + ') successfully uploaded' });
-                    }
-                }
+        // If subdir was sent as query param, concat it to the default uploadDir
+        if (req.query.subdir) {
+            uploadDir = uploadDir.concat(req.query.subdir).concat("/");
+            try {
+                fs.statSync(uploadDir).isDirectory()
+            } catch (er) {
+                console.log("Creating the folder " + uploadDir);
+                fs.mkdir(uploadDir);
             }
-        };
+        }
+        form.uploadDir = uploadDir;
 
         form.parse(req)
             .on('file', function(name, file) {
-                remaining++;
+                console.log("New file: ", name);
+                files.push(name);
 
                 if (self.events.upload) {
                     self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
-                        if (err) uploadedFile(err);
-                        fs.rename(file.path, self.config.fullDirectory + file.name, function(err) {
-                            if (err) return uploadedFile(err);
-                            self.store.insert({filename: name}, function() {
-                                files.push(name);
-                                return uploadedFile();
+                        if (err) return ctx.done(err);
+                        fs.rename(file.path, uploadDir + file.name, function(err) {
+                            if (err) return ctx.done(err);
+                            self.store.insert({filename: name, subdir: req.query.subdir}, function() {
                             });
 
                         });
                     });
                 } else {
-                    fs.rename(file.path, self.config.fullDirectory + file.name, function(err) {
-                        if (err) return uploadedFile(err);
-                        self.store.insert({filename: name}, function() {
-                            files.push(name);
-                            return uploadedFile();
+                    fs.rename(file.path, uploadDir + file.name, function(err) {
+                        if (err) return ctx.done(err);
+                        self.store.insert({filename: name, subdir: req.query.subdir}, function() {
                         });
                     });
                 }
             })
             .on('error', function(err) {
-                ctx.done(err);
-                error = err;
+                return ctx.done(err);
+            }).on('end', function() {
+                console.log("Request finished! ", files);
+                if (req.headers.referer) {
+                    httpUtil.redirect(ctx.res, req.headers.referer || '/');
+                } else {
+                    return ctx.done(null, { statusCode: 200, message: 'Files (' + files.join(", ") + ') successfully uploaded' });
+                }
             });
         req.resume();
         return;
@@ -137,12 +135,10 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 
 Fileupload.prototype.get = function(ctx, next) {
-    var self = this;
-    var req = ctx.req;
-    console.log("Query : ", ctx.query);
+    var self = this,
+        req = ctx.req;
     if (!ctx.query.id) {
         self.store.find(function(err, result) {
-            console.log(result);
             ctx.done(err, result);
         });
     }
@@ -150,18 +146,18 @@ Fileupload.prototype.get = function(ctx, next) {
 
 // Delete a file
 Fileupload.prototype.del = function(ctx, next) {
-    var self = this;
-    console.log(ctx.url);
-    var filename = ctx.url.split('/')[1];
-    fs.unlink(this.config.fullDirectory + filename, function(err) {
-        if (err) {
-            ctx.done(err);
-            break;
-        }
-        self.store.find({query:{filename: filename}}, function(err, result) {
+    var self = this,
+        filename = ctx.url.split('/')[1],
+        uploadDir = this.config.fullDirectory,
+        subdir = ctx.req.query.subdir;
+    if (subdir) {
+        uploadDir = uploadDir.concat(subdir).concat("/");
+    }
+    fs.unlink(uploadDir + filename, function(err) {
+        if (err) return ctx.done(err);
+        self.store.find({query: {filename: filename, subdir: subdir}}, function(err, result) {
             if (typeof result === 'undefined' || result.length < 0) {
-                ctx.done(null, {statusCode: 200, message: 'File ' + filename + ' successfully deleted'});
-                break;
+                return ctx.done(null, {statusCode: 200, message: 'File ' + filename + ' successfully deleted'});
             }
             self.store.remove({id: result[0].id}, function(err) {
                 ctx.done(err, {statusCode: 200, message: 'File ' + filename + ' successfully deleted'});
