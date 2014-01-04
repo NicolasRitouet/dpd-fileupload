@@ -6,11 +6,8 @@ Module for Deployd to upload files.
 
 Installation
 ------------
-Currently, this module is not on npm yet, to install it manually, copy "index.js" in your node_modules of your deployd project and run this to install the dependencies:
 
-    npm install
-
-When this module is on npm:
+Go to the base directory of your Deployd project and enter:
 
     npm install dpd-fileupload --save
 
