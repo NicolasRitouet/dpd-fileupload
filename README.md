@@ -27,7 +27,7 @@ GET is planned, we could remove the upload directory from public and stream the 
 
 Todo
 ----
+- Allow to send an optional filename as parameter
 - Clean returned values (in case of multiple files, headers already sent)
 - Find a better way to get the path of the upload directory
 - Implement GET
--

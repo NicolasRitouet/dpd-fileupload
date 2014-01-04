@@ -6,7 +6,6 @@
 var Resource   = require('deployd/lib/resource'),
     httpUtil   = require('deployd/lib/util/http'),
     util       = require('util'),
-    path       = require('path'),
     formidable = require('formidable'),
     fs         = require('fs');
 
@@ -75,26 +74,18 @@ Fileupload.prototype.handle = function (ctx, next) {
 
                 if (self.events.upload) {
                     self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
-                        if (err) return uploadedFile(err);
+                        if (err) uploadedFile(err);
                         fs.rename(file.path, __dirname + self.config.directory + "/" + ctx.url, function(err) {
                             if (err) uploadedFile(err);
-                            // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
-                            fs.unlink(file.path, function(err) {
-                                if (err) uploadedFile(err);
-                                files.push(file);
-                                uploadedFile();
-                            });
+                            files.push(name);
+                            uploadedFile();
                         });
                     });
                 } else {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
-                        if (err) return uploadedFile(err);
-                        // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
-                        fs.unlink(file.path, function(err) {
-                            if (err) uploadedFile(err);
-                            files.push(file);
-                            uploadedFile();
-                        });
+                        if (err) uploadedFile(err);
+                        files.push(name);
+                        uploadedFile();
                     });
                 }
             })

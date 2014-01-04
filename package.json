@@ -1,21 +1,22 @@
 {
-    "name": "dpd-fileupload",
-    "description": "File uploader for Deployd",
-    "version": "0.0.1",
-    "maintainers": [
-        {
-            "name": "Nicolas Ritouet",
-            "email": "nicolas@ritouet.com",
-            "web": "http://nicolas.ritouet.com"
-        }
-    ],
-    "dependencies": {
-        "formidable": "1.0.14",
-        "fs-extra": "0.8.1"
-    },
-    "repository":
-    {
-        "type": "git",
-        "url": "http://github.com/NicolasRitouet/dpd-fileupload.git"
-    }
+  "name": "dpd-fileupload",
+  "description": "File uploader for Deployd",
+  "version": "0.0.1",
+  "author": "Nicolas Ritouet <nicolas@ritouet.com>",
+  "dependencies": {
+    "formidable": "1.0.14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NicolasRitouet/dpd-fileupload.git"
+  },
+  "engines": {
+    "node": ">=0.8"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NicolasRitouet/dpd-fileupload/issues"
+  },
+  "homepage": "https://github.com/NicolasRitouet/dpd-fileupload",
+  "main": "index.js"
 }
