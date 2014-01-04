@@ -49,11 +49,11 @@ GET of one item is planned. That would allow us to remove the upload directory f
 
 Todo
 ----
-- fix remove bug (file is not removed from collection)
+- check if file already exist (upload anyway and put a (1) in the filename ?)
 - add client example
 - Allow to send an optional filename as parameter
+- Allow "subdir" optional param to store the file in a given sub directory
+- Fix callback problem when multiple files are uploaded (response contains only one file, but all are correctly uploaded and stored)
 - send an event when file is uploaded
-- Clean returned values (in case of multiple files, fix "headers already sent" error)
 - Find a better way to get the path of the upload directory
-- Implement GET of one id (stream file)
-- allow to store files in subdir as optional parameter
+- Implement GET of one file (stream file ?)
