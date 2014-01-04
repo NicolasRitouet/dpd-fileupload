@@ -20,7 +20,7 @@ function Fileupload(options) {
 
     this.config = {
         directory: this.config.directory || 'upload',
-        fullDirectory: __dirname + "/../../public/" + (this.config.directory || '/upload') + "/"
+        fullDirectory: __dirname + "/../../public/" + (this.config.directory || 'upload') + "/"
     };
     try {
         fs.statSync(this.config.fullDirectory).isDirectory()
@@ -154,18 +154,18 @@ Fileupload.prototype.del = function(ctx, next) {
     console.log(ctx.url);
     var filename = ctx.url.split('/')[1];
     fs.unlink(this.config.fullDirectory + filename, function(err) {
-        if (err) ctx.done(err);
+        if (err) {
+            ctx.done(err);
+            break;
+        }
         self.store.find({query:{filename: filename}}, function(err, result) {
-            console.log("Found item id: ", result[0].id);
-
-
-            // TODO : Does not work yet
-            self.store.remove({query: {id: result[0].id}}, function(err, result) {
-                if (err) console.log(err);
-                console.log("Removed item: ", result);
-                ctx.done(null, {message: 'File ' + filename + ' successfully deleted'});
+            if (typeof result === 'undefined' || result.length < 0) {
+                ctx.done(null, {statusCode: 200, message: 'File ' + filename + ' successfully deleted'});
+                break;
+            }
+            self.store.remove({id: result[0].id}, function(err) {
+                ctx.done(err, {statusCode: 200, message: 'File ' + filename + ' successfully deleted'});
             });
-
         });
     });
 };
