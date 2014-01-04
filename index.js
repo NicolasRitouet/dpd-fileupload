@@ -13,11 +13,21 @@ var Resource   = require('deployd/lib/resource'),
  * Module setup.
  */
 function Fileupload(options) {
+
     Resource.apply(this, arguments);
+
+    this.store = process.server.createStore(this.name + "fileupload");
+
     this.config = {
         directory: this.config.directory || 'upload',
         fullDirectory: __dirname + "/../../public/" + (this.config.directory || '/upload') + "/"
     };
+    try {
+        fs.statSync(this.config.fullDirectory).isDirectory()
+    } catch (er) {
+        console.log("Creating the folder " + this.config.fullDirectory);
+        fs.mkdir(this.config.fullDirectory);
+    }
 }
 
 util.inherits(Fileupload, Resource);
@@ -45,9 +55,7 @@ Fileupload.prototype.handle = function (ctx, next) {
 
     if (req.method === "POST" || req.method === "PUT") {
         var form = new formidable.IncomingForm();
-        var uploadDir = this.config.fullDirectory;
-        console.log("UploadDir: ", uploadDir);
-        form.uploadDir = uploadDir;
+        form.uploadDir = this.config.fullDirectory;
         var remaining = 0;
         var files = [];
         var error;
@@ -75,17 +83,22 @@ Fileupload.prototype.handle = function (ctx, next) {
                 if (self.events.upload) {
                     self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
                         if (err) uploadedFile(err);
-                        fs.rename(file.path, __dirname + self.config.directory + "/" + ctx.url, function(err) {
-                            if (err) uploadedFile(err);
-                            files.push(name);
-                            uploadedFile();
+                        fs.rename(file.path, self.config.fullDirectory + file.name, function(err) {
+                            if (err) return uploadedFile(err);
+                            self.store.insert({filename: name}, function() {
+                                files.push(name);
+                                return uploadedFile();
+                            });
+
                         });
                     });
                 } else {
-                    fs.rename(file.path, uploadDir + file.name, function(err) {
-                        if (err) uploadedFile(err);
-                        files.push(name);
-                        uploadedFile();
+                    fs.rename(file.path, self.config.fullDirectory + file.name, function(err) {
+                        if (err) return uploadedFile(err);
+                        self.store.insert({filename: name}, function() {
+                            files.push(name);
+                            return uploadedFile();
+                        });
                     });
                 }
             })
@@ -126,17 +139,34 @@ Fileupload.prototype.handle = function (ctx, next) {
 Fileupload.prototype.get = function(ctx, next) {
     var self = this;
     var req = ctx.req;
-    var url = req.protocol + "://" + req.get('host') + req.url + ctx.url;
-    console.log("URL: ", url);
-
-    httpUtil.redirect(ctx.res, url);
+    console.log("Query : ", ctx.query);
+    if (!ctx.query.id) {
+        self.store.find(function(err, result) {
+            console.log(result);
+            ctx.done(err, result);
+        });
+    }
 };
 
 // Delete a file
 Fileupload.prototype.del = function(ctx, next) {
-    fs.unlink(this.config.fullDirectory + ctx.url, function(err){
+    var self = this;
+    console.log(ctx.url);
+    var filename = ctx.url.split('/')[1];
+    fs.unlink(this.config.fullDirectory + filename, function(err) {
         if (err) ctx.done(err);
-        ctx.done(null, {message: 'File ' + ctx.url + ' successfully deleted'});
+        self.store.find({query:{filename: filename}}, function(err, result) {
+            console.log("Found item id: ", result[0].id);
+
+
+            // TODO : Does not work yet
+            self.store.remove({query: {id: result[0].id}}, function(err, result) {
+                if (err) console.log(err);
+                console.log("Removed item: ", result);
+                ctx.done(null, {message: 'File ' + filename + ' successfully deleted'});
+            });
+
+        });
     });
 };
 
