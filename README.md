@@ -39,7 +39,7 @@ Method GET
 ### Remove a file from filesystem and from collection
 Method DELETE
 
-    dpd.fileupload.delete({filename: "README.md"}, function(err, result) {
+    dpd.fileupload.delete(id, function(err, result) {
         if (err) alert(err);
         console.log(result);
     });
