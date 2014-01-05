@@ -4,7 +4,6 @@
  * Module dependencies
  */
 var Resource   = require('deployd/lib/resource'),
-    httpUtil   = require('deployd/lib/util/http'),
     util       = require('util'),
     formidable = require('formidable'),
     fs         = require('fs');
@@ -23,9 +22,8 @@ function Fileupload(options) {
         fullDirectory: __dirname + "/../../public/" + (this.config.directory || 'upload') + "/"
     };
     try {
-        fs.statSync(this.config.fullDirectory).isDirectory()
+        fs.statSync(this.config.fullDirectory).isDirectory();
     } catch (er) {
-        console.log("Creating the folder " + this.config.fullDirectory);
         fs.mkdir(this.config.fullDirectory);
     }
 }
@@ -54,18 +52,20 @@ Fileupload.prototype.handle = function (ctx, next) {
         domain = {url: ctx.url};
 
     if (req.method === "POST" || req.method === "PUT") {
-        console.log("Subdir : ", req.query.subdir);
         var form = new formidable.IncomingForm(),
-            files = [];
+            files = [],
+            subdir,
+            resultFiles = [];
         var uploadDir = this.config.fullDirectory;
 
         // If subdir was sent as query param, concat it to the default uploadDir
-        if (req.query.subdir) {
+        if (typeof req.query !== 'undefined' && req.query.subdir) {
+            subdir = req.query.subdir;
             uploadDir = uploadDir.concat(req.query.subdir).concat("/");
+            // create the directory if it does not exist
             try {
-                fs.statSync(uploadDir).isDirectory()
+                fs.statSync(uploadDir).isDirectory();
             } catch (er) {
-                console.log("Creating the folder " + uploadDir);
                 fs.mkdir(uploadDir);
             }
         }
@@ -73,7 +73,6 @@ Fileupload.prototype.handle = function (ctx, next) {
 
         form.parse(req)
             .on('file', function(name, file) {
-                console.log("New file: ", name);
                 files.push(name);
 
                 if (self.events.upload) {
@@ -81,7 +80,8 @@ Fileupload.prototype.handle = function (ctx, next) {
                         if (err) return ctx.done(err);
                         fs.rename(file.path, uploadDir + file.name, function(err) {
                             if (err) return ctx.done(err);
-                            self.store.insert({filename: name, subdir: req.query.subdir}, function() {
+                            self.store.insert({filename: name, subdir: subdir}, function(err, result) {
+                                resultFiles.push(result);
                             });
 
                         });
@@ -89,7 +89,8 @@ Fileupload.prototype.handle = function (ctx, next) {
                 } else {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
                         if (err) return ctx.done(err);
-                        self.store.insert({filename: name, subdir: req.query.subdir}, function() {
+                        self.store.insert({filename: name, subdir: subdir}, function(err, result) {
+                            resultFiles.push(result);
                         });
                     });
                 }
@@ -97,14 +98,8 @@ Fileupload.prototype.handle = function (ctx, next) {
             .on('error', function(err) {
                 return ctx.done(err);
             }).on('end', function() {
-                console.log("Request finished! ", files);
-                if (req.headers.referer) {
-                    httpUtil.redirect(ctx.res, req.headers.referer || '/');
-                } else {
-                    return ctx.done(null, { statusCode: 200, message: 'Files (' + files.join(", ") + ') successfully uploaded' });
-                }
+                return ctx.done(null, resultFiles);
             });
-        req.resume();
         return;
     } else if (req.method === "GET") {
         if (ctx.res.internal) return next(); // This definitely has to be HTTP.
@@ -136,9 +131,16 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 Fileupload.prototype.get = function(ctx, next) {
     var self = this,
-        req = ctx.req;
+        req = ctx.req,
+        reqParam = {};
+
+    if (ctx.query.subdir) {
+        reqParam.subdir = ctx.query.subdir;
+    }
+
+    console.log(ctx);
     if (!ctx.query.id) {
-        self.store.find(function(err, result) {
+        self.store.find(reqParam, function(err, result) {
             ctx.done(err, result);
         });
     }
@@ -147,22 +149,20 @@ Fileupload.prototype.get = function(ctx, next) {
 // Delete a file
 Fileupload.prototype.del = function(ctx, next) {
     var self = this,
-        filename = ctx.url.split('/')[1],
-        uploadDir = this.config.fullDirectory,
-        subdir = ctx.req.query.subdir;
-    if (subdir) {
-        uploadDir = uploadDir.concat(subdir).concat("/");
-    }
-    fs.unlink(uploadDir + filename, function(err) {
+        fileId = ctx.url.split('/')[1],
+        uploadDir = this.config.fullDirectory;
+    this.store.find({id: fileId}, function(err, result) {
         if (err) return ctx.done(err);
-        self.store.find({query: {filename: filename, subdir: subdir}}, function(err, result) {
-            if (typeof result === 'undefined' || result.length < 0) {
-                return ctx.done(null, {statusCode: 200, message: 'File ' + filename + ' successfully deleted'});
-            }
-            self.store.remove({id: result[0].id}, function(err) {
-                ctx.done(err, {statusCode: 200, message: 'File ' + filename + ' successfully deleted'});
+        console.log("Result:", result);
+        if (typeof result !== 'undefined') {
+            self.store.remove({id: fileId}, function(err) {
+                if (err) return ctx.done(err);
+                fs.unlink(uploadDir + result.subdir + "/" + result.filename, function(err) {
+                    if (err) return ctx.done(err);
+                    ctx.done(null, {statusCode: 200, message: "File " + result.filename + " successfuly deleted"});
+                });
             });
-        });
+        }
     });
 };
 
