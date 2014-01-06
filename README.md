@@ -1,4 +1,4 @@
-File uploader for Deployd [![NPM version](https://badge.fury.io/js/dpd-fileupload.png)](https://npmjs.org/package/dpd-fileupload)
+File uploader for Deployd [![NPM](https://nodei.co/npm/dpd-fileupload.png?compact=true)](hhttps://npmjs.org/package/dpd-fileupload/)
 =========================
 
 Module for Deployd to upload files.  
