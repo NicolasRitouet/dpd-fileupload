@@ -61,6 +61,7 @@ Fileupload.prototype.handle = function (ctx, next) {
         // If subdir was sent as query param, concat it to the default uploadDir
         if (typeof req.query !== 'undefined' && req.query.subdir) {
             subdir = req.query.subdir;
+            console.log("Subdir given: ", req.query.subdir);
             uploadDir = uploadDir.concat(req.query.subdir).concat("/");
             // create the directory if it does not exist
             try {
@@ -71,8 +72,10 @@ Fileupload.prototype.handle = function (ctx, next) {
         }
         form.uploadDir = uploadDir;
 
+
         form.parse(req)
             .on('file', function(name, file) {
+                console.log("new file: ", file.name);
                 files.push(name);
 
                 if (self.events.upload) {
@@ -80,7 +83,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                         if (err) return ctx.done(err);
                         fs.rename(file.path, uploadDir + file.name, function(err) {
                             if (err) return ctx.done(err);
-                            self.store.insert({filename: name, subdir: subdir}, function(err, result) {
+                            self.store.insert({filename: file.name, subdir: subdir}, function(err, result) {
                                 resultFiles.push(result);
                             });
 
@@ -89,17 +92,24 @@ Fileupload.prototype.handle = function (ctx, next) {
                 } else {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
                         if (err) return ctx.done(err);
-                        self.store.insert({filename: name, subdir: subdir}, function(err, result) {
+                        console.log("file renamed: ", file.name);
+                        self.store.insert({filename: file.name, subdir: subdir}, function(err, result) {
+                            if (err) return ctx.done(err);
+                            console.log("file stored: ", result);
                             resultFiles.push(result);
                         });
                     });
                 }
-            })
-            .on('error', function(err) {
+            }).on('fileBegin', function(name, file) {
+                console.log("Having a file: ", file.name);
+            }).on('error', function(err) {
+                console.log("nError: ", err);
                 return ctx.done(err);
             }).on('end', function() {
+                console.log("Done !");
                 return ctx.done(null, resultFiles);
             });
+        req.resume();
         return;
     } else if (req.method === "GET") {
         if (ctx.res.internal) return next(); // This definitely has to be HTTP.
@@ -138,7 +148,6 @@ Fileupload.prototype.get = function(ctx, next) {
         reqParam.subdir = ctx.query.subdir;
     }
 
-    console.log(ctx);
     if (!ctx.query.id) {
         self.store.find(reqParam, function(err, result) {
             ctx.done(err, result);
