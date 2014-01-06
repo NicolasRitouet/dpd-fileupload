@@ -26,7 +26,7 @@ Usage
 ### Upload a file
 Method POST or PUT (set content type to "multipart/form-data"), send "subdir" as request param to save the file in a sub directory
 
-Example with angular is [available here](http://jsfiddle.net/danielzen/utp7j/)
+Demo available here: https://github.com/NicolasRitouet/dpd-fileupload-demo
 
 ### Get the list of files
 Method GET
@@ -51,7 +51,7 @@ GET of one item is planned. That would allow us to remove the upload directory f
 
 Todo
 ----
-- add client example
+- improve demo
 - add optional creatorId property and creationDate property
 - fix error when trying to delete a file with a space in its filename
 - check if file already exist (upload anyway and put a (1) in the filename or throw an error?)
