@@ -1,4 +1,4 @@
-File uploader for Deployd
+File uploader for Deployd [![NPM](https://nodei.co/npm/dpd-fileupload.png?compact=true)](hhttps://npmjs.org/package/dpd-fileupload/)
 =========================
 
 Module for Deployd to upload files.  
