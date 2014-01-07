@@ -51,6 +51,7 @@ GET of one item is planned. That would allow us to remove the upload directory f
 
 Todo
 ----
+- Use require('debug')('dpd-fileupload'); instead of console.log
 - improve demo
 - add optional creatorId property
 - check if file already exist (upload anyway and put a (1) in the filename or throw an error?)
