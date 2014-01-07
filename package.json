@@ -1,11 +1,11 @@
 {
   "name": "dpd-fileupload",
   "description": "File uploader for Deployd",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Nicolas Ritouet <nicolas@ritouet.com>",
   "dependencies": {
-    "formidable": "1.0.14",
-    "debug": ">= 0.7.0"
+    "formidable": ">= 1.0.14",
+    "debug": ">= 0.7.4"
   },
   "repository": {
     "type": "git",
