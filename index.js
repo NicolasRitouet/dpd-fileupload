@@ -53,7 +53,6 @@ Fileupload.prototype.handle = function (ctx, next) {
 
     if (req.method === "POST" || req.method === "PUT") {
         var form = new formidable.IncomingForm(),
-            files = [],
             subdir,
             resultFiles = [];
         var uploadDir = this.config.fullDirectory;
@@ -75,15 +74,14 @@ Fileupload.prototype.handle = function (ctx, next) {
 
         form.parse(req)
             .on('file', function(name, file) {
-                console.log("new file: ", file.name);
-                files.push(name);
+                console.log("File received: ", file.name);
 
                 if (self.events.upload) {
                     self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
                         if (err) return ctx.done(err);
                         fs.rename(file.path, uploadDir + file.name, function(err) {
                             if (err) return ctx.done(err);
-                            self.store.insert({filename: file.name, subdir: subdir}, function(err, result) {
+                            self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
                                 resultFiles.push(result);
                             });
 
@@ -93,7 +91,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
                         if (err) return ctx.done(err);
                         console.log("file renamed: ", file.name);
-                        self.store.insert({filename: file.name, subdir: subdir}, function(err, result) {
+                        self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
                             if (err) return ctx.done(err);
                             console.log("file stored: ", result);
                             resultFiles.push(result);
@@ -101,16 +99,15 @@ Fileupload.prototype.handle = function (ctx, next) {
                     });
                 }
             }).on('fileBegin', function(name, file) {
-                console.log("Having a file: ", file.name);
+                console.log("Receiving a file: ", file.name);
             }).on('error', function(err) {
-                console.log("nError: ", err);
+                console.log("Error: ", err);
                 return ctx.done(err);
             }).on('end', function() {
-                console.log("Done !");
+                console.log("Upload completed, number of files: ", resultFiles.length);
                 return ctx.done(null, resultFiles);
             });
-        req.resume();
-        return;
+        return req.resume();
     } else if (req.method === "GET") {
         if (ctx.res.internal) return next(); // This definitely has to be HTTP.
 
