@@ -53,7 +53,6 @@ Todo
 ----
 - improve demo
 - add optional creatorId property
-- fix error when trying to delete a file with a space in its filename
 - check if file already exist (upload anyway and put a (1) in the filename or throw an error?)
 - Response after upload is returned too soon, uploaded file is not in the returned response (add a "remainingFile" integer)
 - Find a cleaner way to get the path of the upload directory
