@@ -5,6 +5,7 @@
  */
 var Resource   = require('deployd/lib/resource'),
     util       = require('util'),
+    debug      = require('debug')('dpd-fileupload'),
     formidable = require('formidable'),
     fs         = require('fs');
 
@@ -60,7 +61,7 @@ Fileupload.prototype.handle = function (ctx, next) {
         // If subdir was sent as query param, concat it to the default uploadDir
         if (typeof req.query !== 'undefined' && req.query.subdir) {
             subdir = req.query.subdir;
-            console.log("Subdir given: ", req.query.subdir);
+            debug("Subdir given: %j", req.query.subdir);
             uploadDir = uploadDir.concat(req.query.subdir).concat("/");
             // create the directory if it does not exist
             try {
@@ -74,7 +75,7 @@ Fileupload.prototype.handle = function (ctx, next) {
 
         form.parse(req)
             .on('file', function(name, file) {
-                console.log("File received: ", file.name);
+                debug("Receiving file %j", file.name);
 
                 if (self.events.upload) {
                     self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
@@ -82,6 +83,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                         fs.rename(file.path, uploadDir + file.name, function(err) {
                             if (err) return ctx.done(err);
                             self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
+                                debug('stored after event.upload.run %j', err || result || 'none');
                                 resultFiles.push(result);
                             });
 
@@ -90,21 +92,21 @@ Fileupload.prototype.handle = function (ctx, next) {
                 } else {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
                         if (err) return ctx.done(err);
-                        console.log("file renamed: ", file.name);
+                        debug("File renamed: %j", file.name);
                         self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
                             if (err) return ctx.done(err);
-                            console.log("file stored: ", result);
+                            debug('stored %j', err || result || 'none');
                             resultFiles.push(result);
                         });
                     });
                 }
             }).on('fileBegin', function(name, file) {
-                console.log("Receiving a file: ", file.name);
+                debug("Receiving a file: %j", file.name);
             }).on('error', function(err) {
-                console.log("Error: ", err);
+                debug("Error: %j", err);
                 return ctx.done(err);
             }).on('end', function() {
-                console.log("Upload completed, number of files: ", resultFiles.length);
+                debug('Upload completed %j', err || result || 'none');
                 return ctx.done(null, resultFiles);
             });
         return req.resume();
@@ -159,7 +161,7 @@ Fileupload.prototype.del = function(ctx, next) {
         uploadDir = this.config.fullDirectory;
     this.store.find({id: fileId}, function(err, result) {
         if (err) return ctx.done(err);
-        console.log("Result:", result);
+        debug('found %j', err || result || 'none');
         if (typeof result !== 'undefined') {
             var subdir = "";
             if (result.subdir !== null) {
