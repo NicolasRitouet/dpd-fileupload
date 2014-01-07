@@ -161,9 +161,13 @@ Fileupload.prototype.del = function(ctx, next) {
         if (err) return ctx.done(err);
         console.log("Result:", result);
         if (typeof result !== 'undefined') {
+            var subdir = "";
+            if (result.subdir !== null) {
+                subdir = result.subdir;
+            }
             self.store.remove({id: fileId}, function(err) {
                 if (err) return ctx.done(err);
-                fs.unlink(uploadDir + result.subdir + "/" + result.filename, function(err) {
+                fs.unlink(uploadDir + subdir + "/" + result.filename, function(err) {
                     if (err) return ctx.done(err);
                     ctx.done(null, {statusCode: 200, message: "File " + result.filename + " successfuly deleted"});
                 });
