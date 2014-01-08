@@ -75,13 +75,14 @@ Fileupload.prototype.handle = function (ctx, next) {
 
         form.parse(req)
             .on('file', function(name, file) {
-                debug("Receiving file %j", file.name);
+                debug("File %j received", file.name);
 
                 if (self.events.upload) {
                     self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
                         if (err) return ctx.done(err);
                         fs.rename(file.path, uploadDir + file.name, function(err) {
                             if (err) return ctx.done(err);
+                            debug("File renamed after event.upload.run: %j", err || uploadDir + file.name);
                             self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
                                 debug('stored after event.upload.run %j', err || result || 'none');
                                 resultFiles.push(result);
@@ -92,7 +93,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 } else {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
                         if (err) return ctx.done(err);
-                        debug("File renamed: %j", file.name);
+                        debug("File renamed: %j", err || uploadDir + file.name);
                         self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
                             if (err) return ctx.done(err);
                             debug('stored %j', err || result || 'none');
@@ -106,7 +107,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 debug("Error: %j", err);
                 return ctx.done(err);
             }).on('end', function() {
-                debug('Upload completed %j', err || result || 'none');
+                debug('Upload completed %j', resultFiles || 'none');
                 return ctx.done(null, resultFiles);
             });
         return req.resume();
