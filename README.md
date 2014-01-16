@@ -17,13 +17,13 @@ $ npm install dpd-fileupload --save
 ```
 
 Once installed, you can add a resource of type fileupload in the dashboard.
-![Installaton](http://pasteboard.s3.amazonaws.com/images/2NYW3Tpe.png)
+![Installaton](https://raw2.github.com/NicolasRitouet/nicolasritouet.github.io/master/images/dashboard-choose-resource.png)
 
 ## Configuration
 By default, the module will create a folder called "upload" inside the public directory. You can then access your files by calling: http://localhost:2403/upload/filename.extension
-![Directory structure](http://snappy-app.com/s/show.php?pass=05237d03e3dc40403e99e0dd131a3f4f)
+![Directory structure](https://raw2.github.com/NicolasRitouet/nicolasritouet.github.io/master/images/directory-structure.png)
 If you need to, you can change the name of the directory in the dashboard under CONFIG.
-![Configuration](http://pasteboard.s3.amazonaws.com/images/2NYWWLB0.png)
+![Configuration](https://raw2.github.com/NicolasRitouet/nicolasritouet.github.io/master/images/dashboard-config.png)
 
 ## Usage
 ### Upload a file
