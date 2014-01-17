@@ -98,7 +98,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                         fs.rename(file.path, uploadDir + file.name, function(err) {
                             if (err) return processDone(err);
                             debug("File renamed after event.upload.run: %j", err || uploadDir + file.name);
-                            self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
+                            self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime(), size: file.size}, function(err, result) {
                                 if (err) return processDone(err);
                                 debug('stored after event.upload.run %j', err || result || 'none');
                                 resultFiles.push(result);
@@ -111,7 +111,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
                         if (err) return processDone(err);
                         debug("File renamed: %j", err || uploadDir + file.name);
-                        self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
+                        self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime(), size: file.size}, function(err, result) {
                             if (err) return processDone(err);
                             debug('stored %j', err || result || 'none');
                             resultFiles.push(result);
