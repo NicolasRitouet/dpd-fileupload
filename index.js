@@ -22,6 +22,8 @@ function Fileupload(options) {
         directory: this.config.directory || 'upload',
         fullDirectory: __dirname + "/../../public/" + (this.config.directory || 'upload') + "/"
     };
+
+    // If the directory doesn't exists, we'll create it
     try {
         fs.statSync(this.config.fullDirectory).isDirectory();
     } catch (er) {
@@ -54,24 +56,37 @@ Fileupload.prototype.handle = function (ctx, next) {
 
     if (req.method === "POST" || req.method === "PUT") {
         var form = new formidable.IncomingForm(),
-            subdir,
-            resultFiles = [];
-        var uploadDir = this.config.fullDirectory;
+            uploadDir = this.config.fullDirectory,
+            resultFiles = [],
+            remainingFile = 0,
+            subdir;
 
-        // If subdir was sent as query param, concat it to the default uploadDir
+
+        // Will send the response if all files have been processed
+        var processDone = function(err) {
+            if (err) return ctx.done(err);
+            remainingFile--;
+            if (remainingFile === 0) {
+                debug("Response sent: ", resultFiles);
+                return ctx.done(null, resultFiles);
+            }
+        }
+
+        // If a subdir was sent as query param, concat it to the default uploadDir
         if (typeof req.query !== 'undefined' && req.query.subdir) {
             subdir = req.query.subdir;
-            debug("Subdir given: %j", req.query.subdir);
+            debug("Subdir given: %j", subdir);
             uploadDir = uploadDir.concat(req.query.subdir).concat("/");
-            // create the directory if it does not exist
+            
+            // If the sub-directory doesn't exists, we'll create it
             try {
                 fs.statSync(uploadDir).isDirectory();
             } catch (er) {
                 fs.mkdir(uploadDir);
             }
         }
-        form.uploadDir = uploadDir;
 
+        form.uploadDir = uploadDir;
 
         form.parse(req)
             .on('file', function(name, file) {
@@ -79,36 +94,37 @@ Fileupload.prototype.handle = function (ctx, next) {
 
                 if (self.events.upload) {
                     self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
-                        if (err) return ctx.done(err);
+                        if (err) return processDone(err);
                         fs.rename(file.path, uploadDir + file.name, function(err) {
-                            if (err) return ctx.done(err);
+                            if (err) return processDone(err);
                             debug("File renamed after event.upload.run: %j", err || uploadDir + file.name);
                             self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
+                                if (err) return processDone(err);
                                 debug('stored after event.upload.run %j', err || result || 'none');
                                 resultFiles.push(result);
+                                processDone();
                             });
 
                         });
                     });
                 } else {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
-                        if (err) return ctx.done(err);
+                        if (err) return processDone(err);
                         debug("File renamed: %j", err || uploadDir + file.name);
                         self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime()}, function(err, result) {
-                            if (err) return ctx.done(err);
+                            if (err) return processDone(err);
                             debug('stored %j', err || result || 'none');
                             resultFiles.push(result);
+                            processDone();
                         });
                     });
                 }
             }).on('fileBegin', function(name, file) {
+                remainingFile++;
                 debug("Receiving a file: %j", file.name);
             }).on('error', function(err) {
                 debug("Error: %j", err);
-                return ctx.done(err);
-            }).on('end', function() {
-                debug('Upload completed %j', resultFiles || 'none');
-                return ctx.done(null, resultFiles);
+                return processDone(err);
             });
         return req.resume();
     } else if (req.method === "GET") {
@@ -160,6 +176,7 @@ Fileupload.prototype.del = function(ctx, next) {
     var self = this,
         fileId = ctx.url.split('/')[1],
         uploadDir = this.config.fullDirectory;
+        
     this.store.find({id: fileId}, function(err, result) {
         if (err) return ctx.done(err);
         debug('found %j', err || result || 'none');
