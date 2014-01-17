@@ -72,9 +72,8 @@ Method DELETE
 Todo
 ----
 - add tests
-- [improve demo](https://github.com/NicolasRitouet/dpd-fileupload-demo) (nicer UI mostly, add implementation with angularJS)
+- [improve demo](https://github.com/NicolasRitouet/dpd-fileupload-demo) (add implementation with angularJS)
 - add optional creatorId property and optional comment property
 - check if file already exist (upload anyway and put a (1) in the filename or throw an error?)
-- Response after upload is returned too soon, uploaded file is not in the returned response (add a "remainingFile" integer)
 - Find a cleaner way to get the path of the upload directory
 - Implement GET of one file (stream file ?)
