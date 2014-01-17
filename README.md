@@ -32,6 +32,21 @@ Method POST or PUT (set content type to "multipart/form-data"), send "subdir" as
 
 Working demo available here: https://github.com/NicolasRitouet/dpd-fileupload-demo
 
+Response of a successful upload:
+```
+[{
+	filename: 'screenshot.png',
+    subdir: "images",
+    creationDate: 1389946339569,
+    id: '2f4c752310e2bbae'
+}, {
+	filename: 'screenshot (1).png',
+    subdir: "images",
+    creationDate: 1389946339233,
+    id: 'ef43f52310e2bbae'
+}, ...]
+```
+
 ### Get the list of files
 Method GET
 
@@ -40,14 +55,28 @@ dpd.fileupload.get(function(err, result) {
     console.log(result);
 });
 ```
+The response:
+```
+[{
+	filename: 'screenshot.png',
+    subdir: "images",
+    creationDate: 1389946339569,
+    id: '2f4c752310e2bbae'
+}, {
+	filename: 'screenshot (1).png',
+    subdir: "images",
+    creationDate: 1389946339233,
+    id: 'ef43f52310e2bbae'
+}, ...]
+```
 
 ### Get one file
 Since we upload the files into the /public folder, you can access your files like this:
 http://localhost:2403/upload/subdir/filename.extension
 replace:
-- upload by the folder your set in the dashboard
-- subdir by the value you set for subdir. (nothing if you haven't given a subdir param)
-- filename.extension by the name of the file your uploaded
+- "upload" by the folder your set in the dashboard
+- "subdir" by the value you set for subdir. (nothing if you haven't given a subdir param)
+- "filename.extension" by the name of the file your uploaded
 
 If you would like more security and some rights management to get the files, [fill an issue](https://github.com/NicolasRitouet/dpd-fileupload/issues/new) about this and I might work on this feature.
 
