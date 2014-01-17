@@ -64,6 +64,8 @@ Method DELETE
 
 
 ## Changelog
+- [0.0.7](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.7)
+    - fix empty response issue
 - [0.0.6](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.6)
 - [0.0.5](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.5)
 
