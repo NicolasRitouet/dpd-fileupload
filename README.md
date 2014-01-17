@@ -27,7 +27,7 @@ If you need to, you can change the name of the directory in the dashboard under 
 ![Configuration](https://raw2.github.com/NicolasRitouet/nicolasritouet.github.io/master/images/dashboard-config.png)
 
 ## Usage
-### Upload a file
+### Upload a file (or multiple files)
 Method POST or PUT (set content type to "multipart/form-data"), send "subdir" as request param to save the file in a sub directory
 
 Working demo available here: https://github.com/NicolasRitouet/dpd-fileupload-demo
