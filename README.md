@@ -99,7 +99,7 @@ Method DELETE
 
 ## Changelog
 - [0.0.8](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.8)
-    - any parameter send in the query will be stored in the resource (and parse a JSON text to produce an object or array)
+    - any parameter send in the query will be stored in the resource (and its value will be parsed as JSON if applicable)
     - if a parameter property name is "subdir", file will be placed under this subdir in the upload directory
 - [0.0.7](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.7)
     - fix empty response issue
