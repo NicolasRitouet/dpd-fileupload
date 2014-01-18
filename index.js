@@ -59,7 +59,9 @@ Fileupload.prototype.handle = function (ctx, next) {
             uploadDir = this.config.fullDirectory,
             resultFiles = [],
             remainingFile = 0,
-            subdir;
+            subdir,
+            creator,
+            storedObject = {};
 
 
         // Will send the response if all files have been processed
@@ -72,17 +74,25 @@ Fileupload.prototype.handle = function (ctx, next) {
             }
         }
 
-        // If a subdir was sent as query param, concat it to the default uploadDir
-        if (typeof req.query !== 'undefined' && req.query.subdir) {
-            subdir = req.query.subdir;
-            debug("Subdir given: %j", subdir);
-            uploadDir = uploadDir.concat(req.query.subdir).concat("/");
-            
-            // If the sub-directory doesn't exists, we'll create it
-            try {
-                fs.statSync(uploadDir).isDirectory();
-            } catch (er) {
-                fs.mkdir(uploadDir);
+        // If we received params from the request
+        if (typeof req.query !== 'undefined') {
+            for (var propertyName in req.query) {
+                debug("Query param found: { %j:%j } ", propertyName, req.query[propertyName]);
+                try {
+                    storedObject[propertyName] = JSON.parse(req.query[propertyName]);
+                } catch (e) {
+                    storedObject[propertyName] = req.query[propertyName];
+                }
+                if (propertyName === 'subdir') {
+                    debug("Subdir found: %j", req.query[propertyName]);
+                    uploadDir = uploadDir.concat(req.query[propertyName]).concat("/");
+                    // If the sub-directory doesn't exists, we'll create it
+                    try {
+                        fs.statSync(uploadDir).isDirectory();
+                    } catch (er) {
+                        fs.mkdir(uploadDir);
+                    }
+                }
             }
         }
 
@@ -98,7 +108,9 @@ Fileupload.prototype.handle = function (ctx, next) {
                         fs.rename(file.path, uploadDir + file.name, function(err) {
                             if (err) return processDone(err);
                             debug("File renamed after event.upload.run: %j", err || uploadDir + file.name);
-                            self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime(), size: file.size}, function(err, result) {
+                            storedObject.filename = file.name;
+                            storedObject.creationDate = new Date().getTime();
+                            self.store.insert(storedObject, function(err, result) {
                                 if (err) return processDone(err);
                                 debug('stored after event.upload.run %j', err || result || 'none');
                                 resultFiles.push(result);
@@ -111,7 +123,9 @@ Fileupload.prototype.handle = function (ctx, next) {
                     fs.rename(file.path, uploadDir + file.name, function(err) {
                         if (err) return processDone(err);
                         debug("File renamed: %j", err || uploadDir + file.name);
-                        self.store.insert({filename: file.name, subdir: subdir, creationDate: new Date().getTime(), size: file.size}, function(err, result) {
+                        storedObject.filename = file.name;
+                        storedObject.creationDate = new Date().getTime();
+                        self.store.insert(storedObject, function(err, result) {
                             if (err) return processDone(err);
                             debug('stored %j', err || result || 'none');
                             resultFiles.push(result);

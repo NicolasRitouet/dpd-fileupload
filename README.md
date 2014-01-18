@@ -28,7 +28,8 @@ If you need to, you can change the name of the directory in the dashboard under 
 
 ## Usage
 ### Upload a file (or multiple files)
-Method POST or PUT (set content type to "multipart/form-data"), send "subdir" as request param to save the file in a sub directory
+Method POST or PUT (set content type to "multipart/form-data"), send "subdir" as request param to save the file in a sub directory.
+Any request parameter sent will be stored in the resource object.
 
 Working demo available here: https://github.com/NicolasRitouet/dpd-fileupload-demo
 
@@ -38,12 +39,14 @@ Response of a successful upload:
 	filename: 'screenshot.png',
     subdir: "images",
     creationDate: 1389946339569,
-    id: '2f4c752310e2bbae'
+    id: '2f4c752310e2bbae',
+    optionalParam:'foobar'
 }, {
 	filename: 'screenshot (1).png',
     subdir: "images",
     creationDate: 1389946339233,
-    id: 'ef43f52310e2bbae'
+    id: 'ef43f52310e2bbae',
+    optionalParam:'foobar'
 }, ...]
 ```
 
@@ -61,12 +64,14 @@ The response:
 	filename: 'screenshot.png',
     subdir: "images",
     creationDate: 1389946339569,
-    id: '2f4c752310e2bbae'
+    id: '2f4c752310e2bbae',
+    optionalParam:'foobar'
 }, {
 	filename: 'screenshot (1).png',
     subdir: "images",
     creationDate: 1389946339233,
-    id: 'ef43f52310e2bbae'
+    id: 'ef43f52310e2bbae',
+    optionalParam:'foobar'
 }, ...]
 ```
 
@@ -93,6 +98,9 @@ Method DELETE
 
 
 ## Changelog
+- [0.0.8](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.8)
+    - any parameter send in the query will be stored in the resource (and parse a JSON text to produce an object or array)
+    - if a parameter property name is "subdir", file will be placed under this subdir in the upload directory
 - [0.0.7](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.7)
     - fix empty response issue
 - [0.0.6](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.6)
@@ -101,8 +109,7 @@ Method DELETE
 Todo
 ----
 - add tests
-- [improve demo](https://github.com/NicolasRitouet/dpd-fileupload-demo) (add implementation with angularJS)
-- add optional creatorId property and optional comment property
-- check if file already exist (upload anyway and put a (1) in the filename or throw an error?)
+- [improve demo](https://github.com/NicolasRitouet/dpd-fileupload-demo) (add implementation with angularJS, send a param in the query)
+- check if file already exist (upload anyway and put a (1) in the filename or return an error?)
 - Find a cleaner way to get the path of the upload directory
 - Implement GET of one file (stream file ?)
