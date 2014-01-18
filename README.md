@@ -108,6 +108,7 @@ Method DELETE
 
 Todo
 ----
+- send an event with progress of upload
 - add tests
 - [improve demo](https://github.com/NicolasRitouet/dpd-fileupload-demo) (add implementation with angularJS, send a param in the query)
 - check if file already exist (upload anyway and put a (1) in the filename or return an error?)
