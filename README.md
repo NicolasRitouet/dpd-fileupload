@@ -40,12 +40,14 @@ Response of a successful upload:
     subdir: "images",
     creationDate: 1389946339569,
     id: '2f4c752310e2bbae',
+    filesize: '75148412',
     optionalParam:'foobar'
 }, {
 	filename: 'screenshot (1).png',
     subdir: "images",
     creationDate: 1389946339233,
     id: 'ef43f52310e2bbae',
+    filesize: '85412',
     optionalParam:'foobar'
 }, ...]
 ```
@@ -65,12 +67,14 @@ The response:
     subdir: "images",
     creationDate: 1389946339569,
     id: '2f4c752310e2bbae',
+    filesize: '75148412',
     optionalParam:'foobar'
 }, {
 	filename: 'screenshot (1).png',
     subdir: "images",
     creationDate: 1389946339233,
     id: 'ef43f52310e2bbae',
+    filesize: '8441547',
     optionalParam:'foobar'
 }, ...]
 ```
