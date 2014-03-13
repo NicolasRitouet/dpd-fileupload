@@ -7,7 +7,8 @@ var Resource   = require('deployd/lib/resource'),
     util       = require('util'),
     debug      = require('debug')('dpd-fileupload'),
     formidable = require('formidable'),
-    fs         = require('fs');
+    fs         = require('fs'),
+    md5        = require('MD5');
 
 /**
  * Module setup.
@@ -22,6 +23,10 @@ function Fileupload(options) {
         directory: this.config.directory || 'upload',
         fullDirectory: __dirname + "/../../public/" + (this.config.directory || 'upload') + "/"
     };
+
+    if (this.name === this.config.directory) {
+        this.config.directory = this.config.directory + "_";
+    }
 
     // If the directory doesn't exists, we'll create it
     try {
@@ -59,9 +64,10 @@ Fileupload.prototype.handle = function (ctx, next) {
             uploadDir = this.config.fullDirectory,
             resultFiles = [],
             remainingFile = 0,
+            storedObject = {},
+            uniqueFilename = false,
             subdir,
-            creator,
-            storedObject = {};
+            creator;
 
 
         // Will send the response if all files have been processed
@@ -78,11 +84,7 @@ Fileupload.prototype.handle = function (ctx, next) {
         if (typeof req.query !== 'undefined') {
             for (var propertyName in req.query) {
                 debug("Query param found: { %j:%j } ", propertyName, req.query[propertyName]);
-                try {
-                    storedObject[propertyName] = JSON.parse(req.query[propertyName]);
-                } catch (e) {
-                    storedObject[propertyName] = req.query[propertyName];
-                }
+
                 if (propertyName === 'subdir') {
                     debug("Subdir found: %j", req.query[propertyName]);
                     uploadDir = uploadDir.concat(req.query[propertyName]).concat("/");
@@ -92,46 +94,58 @@ Fileupload.prototype.handle = function (ctx, next) {
                     } catch (er) {
                         fs.mkdir(uploadDir);
                     }
+
+                } else if (propertyName === 'uniqueFilename') {
+                    debug("uniqueFilename found: %j", req.query[propertyName]);
+                    uniqueFilename = (req.query[propertyName] === 'true');
+                    continue; // skip to the next param since we don't need to store this value
+                }
+
+                // Store any param in the object
+                try {
+                    storedObject[propertyName] = JSON.parse(req.query[propertyName]);
+                } catch (e) {
+                    storedObject[propertyName] = req.query[propertyName];
                 }
             }
         }
 
         form.uploadDir = uploadDir;
 
+        var renameAndStore = function(file) {
+            fs.rename(file.path, uploadDir + file.name, function(err) {
+                if (err) return processDone(err);
+                debug("File renamed after event.upload.run: %j", err || uploadDir + file.name);
+                storedObject.filename = file.name;
+                if (uniqueFilename) {
+                    storedObject.originalFilename = file.originalFilename;
+                }
+                storedObject.filesize = file.size;
+                storedObject.creationDate = new Date().getTime();
+                self.store.insert(storedObject, function(err, result) {
+                    if (err) return processDone(err);
+                    debug('stored after event.upload.run %j', err || result || 'none');
+                    resultFiles.push(result);
+                    processDone();
+                });
+
+            });
+        }
+
         form.parse(req)
             .on('file', function(name, file) {
                 debug("File %j received", file.name);
-
+                if (uniqueFilename) {
+                    file.originalFilename = file.name;
+                    file.name = md5(Date.now()) + '.' + file.name.split('.').pop();
+                }
                 if (self.events.upload) {
-                    self.events.upload.run(ctx, {url: ctx.url, fileSize: file.size, fileName: ctx.url}, function(err) {
+                    self.events.upload.run(ctx, {url: ctx.url, filesize: file.size, filename: ctx.url}, function(err) {
                         if (err) return processDone(err);
-                        fs.rename(file.path, uploadDir + file.name, function(err) {
-                            if (err) return processDone(err);
-                            debug("File renamed after event.upload.run: %j", err || uploadDir + file.name);
-                            storedObject.filename = file.name;
-                            storedObject.creationDate = new Date().getTime();
-                            self.store.insert(storedObject, function(err, result) {
-                                if (err) return processDone(err);
-                                debug('stored after event.upload.run %j', err || result || 'none');
-                                resultFiles.push(result);
-                                processDone();
-                            });
-
-                        });
+                        renameAndStore(file);
                     });
                 } else {
-                    fs.rename(file.path, uploadDir + file.name, function(err) {
-                        if (err) return processDone(err);
-                        debug("File renamed: %j", err || uploadDir + file.name);
-                        storedObject.filename = file.name;
-                        storedObject.creationDate = new Date().getTime();
-                        self.store.insert(storedObject, function(err, result) {
-                            if (err) return processDone(err);
-                            debug('stored %j', err || result || 'none');
-                            resultFiles.push(result);
-                            processDone();
-                        });
-                    });
+                    renameAndStore(file);
                 }
             }).on('fileBegin', function(name, file) {
                 remainingFile++;
