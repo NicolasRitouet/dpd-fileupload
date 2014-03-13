@@ -102,6 +102,12 @@ Method DELETE
 
 
 ## Changelog
+- [0.0.10](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.10)
+    - Option to store unique file name (add uniqueFilename to the query param. [Cf Demo](https://github.com/NicolasRitouet/dpd-fileupload-demo/blob/master/public/js/main.js#L17))
+    - * npm update required ([MD5](https://github.com/pvorb/node-md5) dependency added)
+    - if the name of the resource is the same of the upload directory, it'll automatically append an underscore (_) to the upload directory (cf demo)
+- [0.0.9](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.9)
+    - Store file size
 - [0.0.8](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.8)
     - any parameter send in the query will be stored in the resource (and its value will be parsed as JSON if applicable)
     - if a parameter property name is "subdir", file will be placed under this subdir in the upload directory
