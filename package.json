@@ -6,7 +6,8 @@
   "dependencies": {
     "formidable": "~1.0.14",
     "debug": "~0.7.4",
-    "MD5": "~1.2.0"
+    "MD5": "~1.2.0",
+    "mime": "~1.2.11"
   },
   "repository": {
     "type": "git",
