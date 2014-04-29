@@ -8,7 +8,8 @@ var Resource   = require('deployd/lib/resource'),
     debug      = require('debug')('dpd-fileupload'),
     formidable = require('formidable'),
     fs         = require('fs'),
-    md5        = require('MD5');
+    md5        = require('MD5'),
+    mime       = require('mime');
 
 /**
  * Module setup.
@@ -122,6 +123,10 @@ Fileupload.prototype.handle = function (ctx, next) {
                 }
                 storedObject.filesize = file.size;
                 storedObject.creationDate = new Date().getTime();
+
+                // Store MIME type in object
+                storedObject.mimeType = mime.lookup(file.name);
+
                 self.store.insert(storedObject, function(err, result) {
                     if (err) return processDone(err);
                     debug('stored after event.upload.run %j', err || result || 'none');
@@ -185,15 +190,10 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 Fileupload.prototype.get = function(ctx, next) {
     var self = this,
-        req = ctx.req,
-        reqParam = {};
-
-    if (ctx.query.subdir) {
-        reqParam.subdir = ctx.query.subdir;
-    }
+        req = ctx.req;
 
     if (!ctx.query.id) {
-        self.store.find(reqParam, function(err, result) {
+        self.store.find(ctx.query, function(err, result) {
             ctx.done(err, result);
         });
     }
