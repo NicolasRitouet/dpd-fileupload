@@ -161,7 +161,6 @@ Fileupload.prototype.handle = function (ctx, next) {
             });
         return req.resume();
     } else if (req.method === "GET") {
-        if (ctx.res.internal) return next(); // This definitely has to be HTTP.
 
         if (this.events.get) {
             this.events.get.run(ctx, domain, function(err) {
