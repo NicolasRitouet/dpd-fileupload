@@ -102,6 +102,9 @@ Method DELETE
 
 
 ## Changelog
+- [0.0.11](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.11)
+    - Allow internal requests for GET. Close #12
+    - Added MIME types and filtering file lists. PR #5
 - [0.0.10](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.10)
     - Option to store unique file name (add uniqueFilename to the query param. [Cf Demo](https://github.com/NicolasRitouet/dpd-fileupload-demo/blob/master/public/js/main.js#L17))
     - * npm update required ([MD5](https://github.com/pvorb/node-md5) dependency added)
