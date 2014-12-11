@@ -1,7 +1,5 @@
 # File uploader Module for Deployd
-
-[![npm](http://img.shields.io/npm/v/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/)
-[![David](http://img.shields.io/david/nicolasritouet/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/)
+[![npm](http://img.shields.io/npm/v/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/) [![David](http://img.shields.io/david/nicolasritouet/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/)
 =========================
 [Check out this repo for a demo of this module.](https://github.com/NicolasRitouet/dpd-fileupload-demo)
 
