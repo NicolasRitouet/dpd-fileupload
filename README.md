@@ -1,6 +1,9 @@
-File uploader Module for Deployd [![NPM](https://nodei.co/npm/dpd-fileupload.png?compact=true)](https://npmjs.org/package/dpd-fileupload/)
+# File uploader Module for Deployd
+
+[![npm](http://img.shields.io/npm/v/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/)
+[![David](http://img.shields.io/david/nicolasritouet/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/)
 =========================
-[A working demo is available.](https://github.com/NicolasRitouet/dpd-fileupload-demo)
+[Check out this repo for a demo of this module.](https://github.com/NicolasRitouet/dpd-fileupload-demo)
 
 ## Description
 This module provides functionnality to upload files within Deployd.
