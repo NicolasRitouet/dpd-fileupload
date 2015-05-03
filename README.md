@@ -20,6 +20,15 @@ $ npm install dpd-fileupload --save
 Once installed, you can add a resource of type fileupload in the dashboard.
 ![Installaton](https://raw.githubusercontent.com/NicolasRitouet/nicolasritouet.github.io/master/images/dashboard-choose-resource.png)
 
+## Development
+
+```shell
+$ git clone git@github.com:NicolasRitouet/dpd-fileupload.git
+$ cd dpd-fileupload
+$ npm install
+$ npm link
+```
+
 ## Configuration
 By default, the module will create a folder called "upload" inside the public directory. You can then access your files by calling: http://localhost:2403/upload/filename.extension
 ![Directory structure](https://raw.githubusercontent.com/NicolasRitouet/nicolasritouet.github.io/master/images/directory-structure.png)
@@ -103,6 +112,9 @@ Method DELETE
 
 
 ## Changelog
+- [0.0.12](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.12)
+    - Update dependencies. Close #17
+    - rename mimeType property to type to match the html5 file spec. Close #14
 - [0.0.11](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.11)
     - Allow internal requests for GET. Close #12
     - Added MIME types and filtering file lists. PR #5
