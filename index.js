@@ -9,7 +9,9 @@ var Resource   = require('deployd/lib/resource'),
     formidable = require('formidable'),
     fs         = require('fs'),
     md5        = require('MD5'),
-    mime       = require('mime');
+    mime       = require('mime'),
+    env        = process.server.options && process.server.options.env || null,
+    publicDir  = "/../../public";
 
 /**
  * Module setup.
@@ -20,9 +22,18 @@ function Fileupload(options) {
 
     this.store = process.server.createStore(this.name + "fileupload");
 
+    if(env){
+        var dirToCheck = publicDir + "-" + env,
+        publicDirExists = fs.existsSync(__dirname + dirToCheck);
+        if(publicDirExists) {
+            publicDir = dirToCheck;
+        }
+    }
+    publicDir = publicDir + "/";
+
     this.config = {
         directory: this.config.directory || 'upload',
-        fullDirectory: __dirname + "/../../public/" + (this.config.directory || 'upload') + "/"
+        fullDirectory: __dirname + publicDir + (this.config.directory || 'upload') + "/"
     };
 
     if (this.name === this.config.directory) {
