@@ -1,10 +1,10 @@
 # File uploader Module for Deployd
-[![npm](http://img.shields.io/npm/v/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/) [![David](http://img.shields.io/david/nicolasritouet/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/)
+[![npm](http://img.shields.io/npm/v/dpd-fileupload.svg?style=flat-square)](https://www.npmjs.com/package/dpd-fileupload/) [![David](http://img.shields.io/david/nicolasritouet/dpd-fileupload.svg?style=flat-square)](https://david-dm.org/nicolasritouet/dpd-fileupload)
 =========================
 [Check out this repo for a demo of this module.](https://github.com/NicolasRitouet/dpd-fileupload-demo)
 
 ## Description
-This module provides functionnality to upload files within Deployd.
+This module provides functionality to upload files within Deployd.
 The uploaded files will be stored in the public folder of Deployd and the filenames will be stored in a collection.
 
 Don't hesitate to [fill an issue](https://github.com/NicolasRitouet/dpd-fileupload/issues/new) if you find a bug or need a feature.
@@ -113,7 +113,8 @@ Method DELETE
 
 ## Changelog
 - [0.0.12](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.12)
-    - Update dependencies. Close #17
+    - fix: public folder not dynamic. PR #19 (thanks @docnoe)
+		- Update dependencies. Close #17
     - rename mimeType property to type to match the html5 file spec. Close #14
 - [0.0.11](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.11)
     - Allow internal requests for GET. Close #12
