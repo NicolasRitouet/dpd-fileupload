@@ -113,9 +113,9 @@ Method DELETE
 
 ## Changelog
 - [0.0.12](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.12)
-    - fix: public folder not dynamic. PR #19 (thanks @docnoe)
+		- fix: public folder not dynamic. PR #19 (thanks @docnoe)
 		- Update dependencies. Close #17
-    - rename mimeType property to type to match the html5 file spec. Close #14
+		- rename mimeType property to type to match the html5 file spec. Close #14
 - [0.0.11](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.11)
     - Allow internal requests for GET. Close #12
     - Added MIME types and filtering file lists. PR #5
