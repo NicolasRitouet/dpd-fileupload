@@ -112,8 +112,11 @@ Method DELETE
 
 
 ## Changelog
-- [0.0.12](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.12)  
-    - fix: public folder not dynamic. PR #19 (thanks @docnoe)
+	- [0.0.13](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.13)  
+    - Fixed bug for deleting without a subdirectory. [PR #22](https://github.com/NicolasRitouet/dpd-fileupload/pull/22) (thanks [@rgolea](https://github.com/rgolea))
+    - Upgrade dependency (`debug` module).
+	- [0.0.12](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.12)  
+    - fix: public folder not dynamic. [PR #19](https://github.com/NicolasRitouet/dpd-fileupload/pull/19) (thanks @docnoe)
     - Update dependencies. Close #17
     - rename mimeType property to type to match the html5 file spec. Close #14
 - [0.0.11](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.11)
