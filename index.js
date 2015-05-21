@@ -225,10 +225,18 @@ Fileupload.prototype.del = function(ctx, next) {
             }
             self.store.remove({id: fileId}, function(err) {
                 if (err) return ctx.done(err);
-                fs.unlink(uploadDir + subdir + "/" + result.filename, function(err) {
-                    if (err) return ctx.done(err);
-                    ctx.done(null, {statusCode: 200, message: "File " + result.filename + " successfuly deleted"});
-                });
+                //Fixed in case you don't upload to a subdir
+                if(subdir){
+                    fs.unlink(uploadDir + subdir + "/" + result.filename, function(err) {
+                        if (err) return ctx.done(err);
+                        ctx.done(null, {statusCode: 200, message: "File " + result.filename + " successfuly deleted"});
+                    });
+                } else {
+                    fs.unlink(uploadDir + "/" + result.filename, function(err) {
+                        if (err) return ctx.done(err);
+                        ctx.done(null, {statusCode: 200, message: "File " + result.filename + " successfuly deleted"});
+                    });
+                }
             });
         }
     });
