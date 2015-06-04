@@ -29,7 +29,6 @@ function Fileupload(options) {
             publicDir = dirToCheck;
         }
     }
-    publicDir = publicDir + "/";
 
     this.config = {
         directory: this.config.directory || 'upload',
