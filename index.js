@@ -32,7 +32,7 @@ function Fileupload(options) {
 
     this.config = {
         directory: this.config.directory || 'upload',
-        fullDirectory: __dirname + publicDir + (this.config.directory || 'upload') + "/"
+        fullDirectory: __dirname + publicDir + "/" + (this.config.directory || 'upload') + "/"
     };
 
     if (this.name === this.config.directory) {
