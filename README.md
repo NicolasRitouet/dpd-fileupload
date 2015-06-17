@@ -25,7 +25,6 @@ Once installed, you can add a resource of type fileupload in the dashboard.
 ```shell
 $ git clone git@github.com:NicolasRitouet/dpd-fileupload.git
 $ cd dpd-fileupload
-$ npm install
 $ npm link
 ```
 
@@ -112,6 +111,8 @@ Method DELETE
 
 
 ## Changelog
+- [0.0.14](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.14)  
+  - Fixed path issues with lots of traffic. [PR #25](https://github.com/NicolasRitouet/dpd-fileupload/pull/25) (thanks [@rgolea](https://github.com/rgolea))
 - [0.0.13](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.13)  
   - Fixed bug for deleting without a subdirectory. [PR #22](https://github.com/NicolasRitouet/dpd-fileupload/pull/22) (thanks [@rgolea](https://github.com/rgolea))
   - Upgrade dependency (`debug` module).
