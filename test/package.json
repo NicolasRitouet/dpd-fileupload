@@ -12,6 +12,6 @@
     "q": "^1.4.1"
   },
   "scripts": {
-    "test": "DEBUG=* node ./node_modules/mocha/bin/mocha ./server.js --reporter spec"
+    "test": "DEBUG=* node ./node_modules/mocha/bin/mocha ./integration-tests.js --reporter spec"
   }
 }

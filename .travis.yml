@@ -10,5 +10,5 @@ node_js:
   - "iojs"
 
 before_script:
-  - sleep 15
+  - sleep 15 # sleep to wait for mongodb
   - cd test && npm install && npm test
