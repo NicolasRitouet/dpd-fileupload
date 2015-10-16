@@ -1,0 +1,16 @@
+{
+  "name": "dpd-fileupload-test",
+  "author": "Nicolas Ritouet <nicolas@ritouet.com>",
+  "dependencies": {
+    "deployd": "~0.8.4",
+    "dpd-fileupload": "^0.0.14"
+  },
+  "devDependencies": {
+    "chai": "^3.3.0",
+    "chai-http": "^1.0.0",
+    "mocha": "^2.3.3"
+  },
+  "scripts": {
+    "test": "DEBUG=* node ./node_modules/mocha/bin/mocha ./server.js --reporter spec"
+  }
+}
