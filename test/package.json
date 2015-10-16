@@ -3,7 +3,7 @@
   "author": "Nicolas Ritouet <nicolas@ritouet.com>",
   "dependencies": {
     "deployd": "~0.8.4",
-    "dpd-fileupload": "^0.0.14"
+    "dpd-fileupload": "file:../"
   },
   "devDependencies": {
     "chai": "^3.3.0",
