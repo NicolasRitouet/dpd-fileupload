@@ -65,7 +65,7 @@ Response of a successful upload:
 Method GET
 
 ```js
-dpd.fileupload.get(function(err, result) {
+dpd.fileupload.get(function(result, err) {
     console.log(result);
 });
 ```
@@ -103,7 +103,7 @@ If you would like more security and some rights management to get the files, [fi
 Method DELETE
 
 ```js
-    dpd.fileupload.delete(id, function(err, result) {
+    dpd.fileupload.delete(id, function(result, err) {
         if (err) alert(err);
         console.log(result);
     });
