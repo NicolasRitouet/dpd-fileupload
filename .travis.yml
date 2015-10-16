@@ -1,4 +1,6 @@
 language: node_js
+services:
+  - mongodb
 node_js:
   - "4.1"
   - "4.0"
@@ -10,4 +12,5 @@ node_js:
   - "iojs"
 
 before_script:
+  - sleep 15
   - cd test && npm install && npm test
