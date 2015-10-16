@@ -21,5 +21,8 @@
     "url": "https://github.com/NicolasRitouet/dpd-fileupload/issues"
   },
   "homepage": "https://github.com/NicolasRitouet/dpd-fileupload",
-  "main": "index.js"
+  "main": "index.js",
+  "scripts": {
+    "test": "cd test && npm install && npm test"
+  }
 }
