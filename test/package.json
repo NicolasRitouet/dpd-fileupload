@@ -14,6 +14,6 @@
     "request": "^2.65.0"
   },
   "scripts": {
-    "test": "DEBUG=* node ./node_modules/mocha/bin/mocha ./integration-tests.js --reporter spec"
+    "test": "node ./node_modules/mocha/bin/mocha ./integration-tests.js --reporter spec"
   }
 }
