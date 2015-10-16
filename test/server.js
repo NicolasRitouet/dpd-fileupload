@@ -34,14 +34,12 @@ describe('/upload', function() {
   });
 
   it('get the list of images', function(done) {
-    // this.timeout(2000);
     setTimeout(function() {
-
 
       chai.request(server)
         .get('/upload')
         .then(function (res) {
-          console.log('Image upload', res);
+          console.log('get a response', res);
            expect(res).to.have.status(200);
            done();
         })
