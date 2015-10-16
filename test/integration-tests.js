@@ -56,4 +56,23 @@ describe('/upload', function() {
 
     }, 500);
   });
+
+  it('upload an image', function(done) {
+    setTimeout(function() {
+
+      chai.request(server)
+        .post('/upload')
+        .attach('uploadedFile', fs.readFileSync('bear.jpg'), 'bear.jpg')
+        .then(function (res) {
+          console.log('get a response', res);
+           expect(res).to.have.status(200);
+           done();
+        })
+        .catch(function (err) {
+          console.log('Error', err);
+           throw err;
+        });
+
+    }, 500);
+  });
 });
