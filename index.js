@@ -81,7 +81,6 @@ Fileupload.prototype.handle = function (ctx, next) {
             subdir,
             creator;
 
-
         // Will send the response if all files have been processed
         var processDone = function(err) {
             if (err) return ctx.done(err);
@@ -137,8 +136,6 @@ Fileupload.prototype.handle = function (ctx, next) {
 
                 // Store MIME type in object
                 storedObject.type = mime.lookup(file.name);
-
-                if(storedObject.id) delete storedObject.id;
 
                 self.store.insert(storedObject, function(err, result) {
                     if (err) return processDone(err);
