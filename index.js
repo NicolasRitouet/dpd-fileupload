@@ -1,5 +1,5 @@
 "use strict";
- 
+
 /**
  * Module dependencies
  */
@@ -9,20 +9,20 @@ var Resource   = require('deployd/lib/resource'),
     debug      = require('debug')('dpd-fileupload'),
     formidable = require('formidable'),
     fs         = require('fs'),
-    md5        = require('MD5'),
+    md5        = require('md5'),
     mime       = require('mime'),
     env        = process.server.options && process.server.options.env || null,
     publicDir  = "/../../public";
- 
+
 /**
  * Module setup.
  */
 function Fileupload(options) {
- 
+
     Resource.apply(this, arguments);
- 
+
     this.store = process.server.createStore(this.name + "fileupload");
- 
+
     if(env){
         var dirToCheck = publicDir + "-" + env,
         publicDirExists = fs.existsSync(__dirname + dirToCheck);
@@ -30,16 +30,16 @@ function Fileupload(options) {
             publicDir = dirToCheck;
         }
     }
- 
+
     this.config = {
         directory: this.config.directory || 'upload',
         fullDirectory: path.join(__dirname, publicDir, (this.config.directory || 'upload'))
     };
- 
+
     if (this.name === this.config.directory) {
         this.config.directory = this.config.directory + "_";
     }
- 
+
     // If the directory doesn't exists, we'll create it
     try {
         fs.statSync(this.config.fullDirectory).isDirectory();
@@ -47,9 +47,9 @@ function Fileupload(options) {
         fs.mkdir(this.config.fullDirectory);
     }
 }
- 
+
 util.inherits(Fileupload, Resource);
- 
+
 Fileupload.label = "File upload";
 Fileupload.events = ["get", "upload", "delete"];
 Fileupload.prototype.clientGeneration = true;
@@ -62,7 +62,7 @@ Fileupload.basicDashboard = {
         }
     ]
 };
- 
+
 /**
  * Module methods
  */
@@ -70,7 +70,7 @@ Fileupload.prototype.handle = function (ctx, next) {
     var req = ctx.req,
         self = this,
         domain = {url: ctx.url};
- 
+
     if (req.method === "POST" || req.method === "PUT") {
         var form = new formidable.IncomingForm(),
             uploadDir = this.config.fullDirectory,
@@ -80,8 +80,7 @@ Fileupload.prototype.handle = function (ctx, next) {
             uniqueFilename = false,
             subdir,
             creator;
- 
- 
+
         // Will send the response if all files have been processed
         var processDone = function(err) {
             if (err) return ctx.done(err);
@@ -91,12 +90,12 @@ Fileupload.prototype.handle = function (ctx, next) {
                 return ctx.done(null, resultFiles);
             }
         }
- 
+
         // If we received params from the request
         if (typeof req.query !== 'undefined') {
             for (var propertyName in req.query) {
                 debug("Query param found: { %j:%j } ", propertyName, req.query[propertyName]);
- 
+
                 if (propertyName === 'subdir') {
                     debug("Subdir found: %j", req.query[propertyName]);
                     uploadDir = path.join(uploadDir, req.query[propertyName]);
@@ -106,13 +105,13 @@ Fileupload.prototype.handle = function (ctx, next) {
                     } catch (er) {
                         fs.mkdir(uploadDir);
                     }
- 
+
                 } else if (propertyName === 'uniqueFilename') {
                     debug("uniqueFilename found: %j", req.query[propertyName]);
                     uniqueFilename = (req.query[propertyName] === 'true');
                     continue; // skip to the next param since we don't need to store this value
                 }
- 
+
                 // Store any param in the object
                 try {
                     storedObject[propertyName] = JSON.parse(req.query[propertyName]);
@@ -121,9 +120,9 @@ Fileupload.prototype.handle = function (ctx, next) {
                 }
             }
         }
- 
+
         form.uploadDir = uploadDir;
- 
+
         var renameAndStore = function(file) {
             fs.rename(file.path, path.join(uploadDir, file.name), function(err) {
                 if (err) return processDone(err);
@@ -134,20 +133,20 @@ Fileupload.prototype.handle = function (ctx, next) {
                 }
                 storedObject.filesize = file.size;
                 storedObject.creationDate = new Date().getTime();
- 
+
                 // Store MIME type in object
                 storedObject.type = mime.lookup(file.name);
- 
+
                 self.store.insert(storedObject, function(err, result) {
                     if (err) return processDone(err);
                     debug('stored after event.upload.run %j', err || result || 'none');
                     resultFiles.push(result);
                     processDone();
                 });
- 
+
             });
         }
- 
+
         form.parse(req)
             .on('file', function(name, file) {
                 debug("File %j received", file.name);
@@ -172,7 +171,7 @@ Fileupload.prototype.handle = function (ctx, next) {
             });
         return req.resume();
     } else if (req.method === "GET") {
- 
+
         if (this.events.get) {
             this.events.get.run(ctx, domain, function(err) {
                 if (err) return ctx.done(err);
@@ -181,9 +180,9 @@ Fileupload.prototype.handle = function (ctx, next) {
         } else {
             this.get(ctx, next);
         }
- 
+
     } else if (req.method === "DELETE") {
- 
+
         if (this.events['delete']) {
             this.events['delete'].run(ctx, domain, function(err) {
                 if (err) return ctx.done(err);
@@ -196,25 +195,25 @@ Fileupload.prototype.handle = function (ctx, next) {
         next();
     }
 };
- 
- 
+
+
 Fileupload.prototype.get = function(ctx, next) {
     var self = this,
         req = ctx.req;
- 
+
     if (!ctx.query.id) {
         self.store.find(ctx.query, function(err, result) {
             ctx.done(err, result);
         });
     }
 };
- 
+
 // Delete a file
 Fileupload.prototype.del = function(ctx, next) {
     var self = this,
         fileId = ctx.url.split('/')[1],
         uploadDir = this.config.fullDirectory;
- 
+
     this.store.find({id: fileId}, function(err, result) {
         if (err) return ctx.done(err);
         debug('found %j', err || result || 'none');
@@ -241,7 +240,7 @@ Fileupload.prototype.del = function(ctx, next) {
         }
     });
 };
- 
+
 /**
  * Module export
  */

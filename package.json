@@ -4,8 +4,8 @@
   "version": "0.0.14",
   "author": "Nicolas Ritouet <nicolas@ritouet.com>",
   "dependencies": {
-    "formidable": "1.0.17",
     "debug": "2.2.0",
+    "formidable": "1.0.17",
     "md5": "2.0.0",
     "mime": "1.3.4"
   },
@@ -14,7 +14,7 @@
     "url": "https://github.com/NicolasRitouet/dpd-fileupload.git"
   },
   "engines": {
-    "node": ">= 0.10"
+    "node": ">= 0.11"
   },
   "license": "MIT",
   "bugs": {
