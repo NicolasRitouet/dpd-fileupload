@@ -5,7 +5,12 @@ var deployd = require('deployd'),
     chaiHttp = require('chai-http'),
     expect = chai.expect;
 
-    chai.use(chaiHttp);
+if (!global.Promise) {
+  var q = require('q');
+  chai.request.addPromises(q.Promise);
+}
+
+chai.use(chaiHttp);
 
 
 describe('/upload', function() {
