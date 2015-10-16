@@ -11,7 +11,6 @@ var Resource   = require('deployd/lib/resource'),
     fs         = require('fs'),
     md5        = require('MD5'),
     mime       = require('mime'),
-    _          = require('lodash'),
     env        = process.server.options && process.server.options.env || null,
     publicDir  = "/../../public";
 
@@ -138,14 +137,13 @@ Fileupload.prototype.handle = function (ctx, next) {
 
                 // Store MIME type in object
                 storedObject.type = mime.lookup(file.name);
-                
+
                 if(storedObject.id) delete storedObject.id;
 
                 self.store.insert(storedObject, function(err, result) {
                     if (err) return processDone(err);
                     debug('stored after event.upload.run %j', err || result || 'none');
-                    var clone = _.cloneDeep(result);
-                    resultFiles.push(clone);
+                    resultFiles.push(result);
                     processDone();
                 });
 
