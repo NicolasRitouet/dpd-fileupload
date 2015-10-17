@@ -1,5 +1,5 @@
 var deployd = require('deployd'),
-    os = require('os')
+    os = require('os');
 
 var server = deployd({
     port: process.env.PORT || 3000,
@@ -7,7 +7,7 @@ var server = deployd({
     db: {
         host: 'localhost',
         port: 27017,
-        name: 'dpd-fileupload-test'
+        name: 'dpd-fileupload-dbtest'
     }
 });
 

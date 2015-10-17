@@ -2,7 +2,7 @@
   "name": "dpd-fileupload-test",
   "author": "Nicolas Ritouet <nicolas@ritouet.com>",
   "dependencies": {
-    "deployd": "git://github.com/nicolasritouet/deployd.git#logs-travis",
+    "deployd": "~0.8.5",
     "dpd-fileupload": "file:../"
   },
   "devDependencies": {
@@ -14,6 +14,6 @@
     "request": "^2.65.0"
   },
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/mocha ./integration-tests.js --reporter spec"
+    "test": "node ./node_modules/mocha/bin/mocha ./index.spec.js --reporter spec"
   }
 }
