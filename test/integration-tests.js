@@ -6,7 +6,8 @@ var fs = require('fs'),
 
 
 var endpoint = 'http://localhost:3000/upload/',
-    filename = 'bear.jpg',
+    imageFilename = 'bear.jpg',
+    txtFilename = 'example.txt',
     uploadedFolder = 'upload_';
 
 
@@ -15,6 +16,7 @@ describe('Integration tests for dpd-fileupload', function() {
 
   before(function() {
     server = require('./server');
+
   });
 
   it('get an empty list of images', function(done) {
@@ -33,7 +35,7 @@ describe('Integration tests for dpd-fileupload', function() {
   it('upload an image', function(done) {
     var formData = {
       uniqueFilename: 'true',
-      uploadedFile: fs.createReadStream(path.join(__dirname, filename))
+      uploadedFile: fs.createReadStream(path.join(__dirname, imageFilename))
     };
     request.post({url: endpoint + '?subdir=images', formData: formData}, function(err, httpResponse, body) {
       if (err) throw err;
@@ -71,7 +73,7 @@ describe('Integration tests for dpd-fileupload', function() {
         if (err) throw err;
         body = JSON.parse(body);
         expect(response.statusCode).to.be.equal(200);
-        expect(body.message).to.be.equal('File ' + filename + ' successfuly deleted');
+        expect(body.message).to.be.equal('File ' + imageFilename + ' successfuly deleted');
         done();
       });
     });
@@ -85,5 +87,53 @@ describe('Integration tests for dpd-fileupload', function() {
         expect(body).to.be.empty;
         done();
       });
+  });
+
+
+
+
+  it('upload many files', function(done) {
+    var formData = {
+      uniqueFilename: 'true',
+      uploadedFile: [
+        fs.createReadStream(path.join(__dirname, imageFilename)),
+        fs.createReadStream(path.join(__dirname, txtFilename))
+      ]
+    };
+    request.post({url: endpoint + '?subdir=images', formData: formData}, function(err, httpResponse, body) {
+      if (err) throw err;
+      expect(body).to.contain(imageFilename);
+      expect(body).to.contain(txtFilename);
+      body = JSON.parse(body);
+      console.log('body after delete', body);
+      expect(body).to.be.length.above(1);
+      expect(body[0].id).to.be.defined;
+      expect(body[1].id).to.be.defined;
+      done();
+    });
+  });
+
+
+  it('delete the uploaded files', function(done) {
+    request.get(endpoint, function(err, response, body) {
+      if (err) throw err;
+      body = JSON.parse(body);
+      expect(body).to.be.length.above(0);
+      expect(body[0].id).to.be.defined;
+
+      request.del(endpoint + body[0].id, {}, function(err, responseDelete1, bodyDelete1) {
+        if (err) throw err;
+        bodyDelete1 = JSON.parse(bodyDelete1);
+        expect(responseDelete1.statusCode).to.be.equal(200);
+        expect(bodyDelete1.message).to.contain('successfuly deleted');
+        request.del(endpoint + body[1].id, {}, function(err, responseDelete2, bodyDelete2) {
+          if (err) throw err;
+          bodyDelete2 = JSON.parse(bodyDelete2);
+          expect(responseDelete2.statusCode).to.be.equal(200);
+          expect(bodyDelete2.message).to.contain('successfuly deleted');
+          done();
+        });
+      });
+    });
   });
 });
