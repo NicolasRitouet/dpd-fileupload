@@ -104,6 +104,7 @@ describe('Integration tests for dpd-fileupload', function() {
       if (err) throw err;
       expect(body).to.contain(imageFilename);
       expect(body).to.contain(txtFilename);
+      expect(body).to.not.contain('E11000');
       body = JSON.parse(body);
       console.log('body after delete', body);
       expect(body).to.be.length.above(1);

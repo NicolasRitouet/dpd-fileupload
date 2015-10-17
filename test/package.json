@@ -2,7 +2,7 @@
   "name": "dpd-fileupload-test",
   "author": "Nicolas Ritouet <nicolas@ritouet.com>",
   "dependencies": {
-    "deployd": "~0.8.4",
+    "deployd": "git://github.com/nicolasritouet/deployd.git#logs-travis",
     "dpd-fileupload": "file:../"
   },
   "devDependencies": {
