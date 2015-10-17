@@ -91,7 +91,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 debug("Response sent: ", resultFiles);
                 return ctx.done(null, resultFiles);
             }
-        }
+        };
 
         // If we received params from the request
         if (typeof req.query !== 'undefined') {
@@ -139,6 +139,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 // Store MIME type in object
                 storedObject.type = mime.lookup(file.name);
                 if (storedObject.id) delete storedObject.id;
+                console.log(storedObject);
 
                 self.store.insert(storedObject, function(err, result) {
                     if (err) return processDone(err);
@@ -149,7 +150,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 });
 
             });
-        }
+        };
 
         form.parse(req)
             .on('file', function(name, file) {
