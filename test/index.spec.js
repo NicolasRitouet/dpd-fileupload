@@ -1,3 +1,4 @@
+'use strict';
 var fs = require('fs'),
     path = require('path'),
     chai = require('chai'),
@@ -104,8 +105,8 @@ describe('Integration tests for dpd-fileupload', function() {
       if (err) throw err;
       expect(body).to.contain(imageFilename);
       expect(body).to.contain(txtFilename);
+      expect(body).to.not.contain('E11000');
       body = JSON.parse(body);
-      console.log('body after delete', body);
       expect(body).to.be.length.above(1);
       expect(body[0].id).to.be.defined;
       expect(body[1].id).to.be.defined;

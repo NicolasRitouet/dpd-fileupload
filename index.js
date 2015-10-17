@@ -1,5 +1,4 @@
-/*jslint node: true */
-"use strict";
+'use strict';
 
 /**
  * Module dependencies
@@ -79,9 +78,7 @@ Fileupload.prototype.handle = function (ctx, next) {
             resultFiles = [],
             remainingFile = 0,
             storedObject = {},
-            uniqueFilename = false,
-            subdir,
-            creator;
+            uniqueFilename = false;
 
         // Will send the response if all files have been processed
         var processDone = function(err) {
@@ -91,7 +88,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 debug("Response sent: ", resultFiles);
                 return ctx.done(null, resultFiles);
             }
-        }
+        };
 
         // If we received params from the request
         if (typeof req.query !== 'undefined') {
@@ -139,6 +136,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 // Store MIME type in object
                 storedObject.type = mime.lookup(file.name);
                 if (storedObject.id) delete storedObject.id;
+                if (storedObject._id) delete storedObject._id;
 
                 self.store.insert(storedObject, function(err, result) {
                     if (err) return processDone(err);
@@ -149,7 +147,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 });
 
             });
-        }
+        };
 
         form.parse(req)
             .on('file', function(name, file) {
@@ -202,8 +200,7 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 
 Fileupload.prototype.get = function(ctx, next) {
-    var self = this,
-        req = ctx.req;
+    var self = this;
 
     if (!ctx.query.id) {
         self.store.find(ctx.query, function(err, result) {
