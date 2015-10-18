@@ -11,7 +11,7 @@
     "mime": "1.3.4"
   },
   "peerDependencies": {
-    "deployd": "=>0.8.5"
+    "deployd": "=>0.8.4"
   },
   "repository": {
     "type": "git",
