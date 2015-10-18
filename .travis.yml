@@ -8,8 +8,8 @@ node_js:
   - "0.11"
   - "iojs"
 
-before_install:
-  - npm install deployd
+install: true
+
 script:
   - sleep 15 # sleep to wait for mongodb
   - cd test && npm install && npm test
