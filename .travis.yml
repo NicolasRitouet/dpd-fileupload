@@ -7,8 +7,8 @@ node_js:
   - "0.12"
   - "0.11"
   - "iojs"
-  
-before_script:
+
+before_install:
   - npm install deployd
 script:
   - sleep 15 # sleep to wait for mongodb
