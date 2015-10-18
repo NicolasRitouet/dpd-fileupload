@@ -14,7 +14,7 @@ Don't hesitate to [fill an issue](https://github.com/NicolasRitouet/dpd-fileuplo
 Go to the base directory of your Deployd project and enter:
 
 ```shell
-$ npm install deployd --save
+$ npm install deployd
 $ npm install dpd-fileupload --save
 ```
 
