@@ -14,6 +14,7 @@ Don't hesitate to [fill an issue](https://github.com/NicolasRitouet/dpd-fileuplo
 Go to the base directory of your Deployd project and enter:
 
 ```shell
+$ npm install deployd --save
 $ npm install dpd-fileupload --save
 ```
 
@@ -139,8 +140,7 @@ Method DELETE
 
 Todo
 ----
-- send an event with progress of upload
-- add tests
+- send an event with progress of upload=
 - [improve demo](https://github.com/NicolasRitouet/dpd-fileupload-demo) (add implementation with angularJS, send a param in the query)
 - check if file already exist (upload anyway and put a (1) in the filename or return an error?)
 - Find a cleaner way to get the path of the upload directory
