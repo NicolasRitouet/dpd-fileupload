@@ -26,6 +26,7 @@ Once installed, you can add a resource of type fileupload in the dashboard.
 ```shell
 $ git clone git@github.com:NicolasRitouet/dpd-fileupload.git
 $ cd dpd-fileupload
+$ npm install deployd
 $ npm link
 ```
 
