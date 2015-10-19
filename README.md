@@ -113,6 +113,11 @@ Method DELETE
 
 
 ## Changelog
+- [0.0.15](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.15)  
+	- Add data in upload event.
+	- Partial fix of `E11000 error` [PR #36](https://github.com/NicolasRitouet/dpd-fileupload/pull/36) (Thanks [@hjanuschka](https://github.com/hjanuschka)). The rest of the fix is on Deployd side ([#653](https://github.com/deployd/deployd/issues/653))
+	- Switch to new md5 dependency (MD5 was deprecated). [PR #31](https://github.com/NicolasRitouet/dpd-fileupload/pull/31)
+	- We now have integration tests, maintainance will be much easier :sunglasses:
 - [0.0.14](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.14)  
   - Fixed path issues with lots of traffic. [PR #25](https://github.com/NicolasRitouet/dpd-fileupload/pull/25) (thanks [@rgolea](https://github.com/rgolea))
 - [0.0.13](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.13)  
