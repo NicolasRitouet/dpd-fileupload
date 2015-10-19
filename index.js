@@ -78,7 +78,8 @@ Fileupload.prototype.handle = function (ctx, next) {
             resultFiles = [],
             remainingFile = 0,
             storedObject = {},
-            uniqueFilename = false;
+            uniqueFilename = false,
+            subdir;
 
         // Will send the response if all files have been processed
         var processDone = function(err) {
@@ -97,7 +98,8 @@ Fileupload.prototype.handle = function (ctx, next) {
 
                 if (propertyName === 'subdir') {
                     debug("Subdir found: %j", req.query[propertyName]);
-                    uploadDir = path.join(uploadDir, req.query[propertyName]);
+                    subdir = req.query[propertyName];
+                    uploadDir = path.join(uploadDir, subdir);
                     // If the sub-directory doesn't exists, we'll create it
                     try {
                         fs.statSync(uploadDir).isDirectory();
@@ -157,7 +159,14 @@ Fileupload.prototype.handle = function (ctx, next) {
                     file.name = md5(Date.now()) + '.' + file.name.split('.').pop();
                 }
                 if (self.events.upload) {
-                    self.events.upload.run(ctx, {url: ctx.url, filesize: file.size, filename: ctx.url}, function(err) {
+                    self.events.upload.run(ctx, {
+                      url: ctx.url,
+                      filesize: file.size,
+                      filename: file.name,
+                      originalFilename: file.originalFilename,
+                      uniqueFilename: uniqueFilename,
+                      subdir: subdir
+                    }, function(err) {
                         if (err) return processDone(err);
                         renameAndStore(file);
                     });
