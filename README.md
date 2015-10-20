@@ -110,6 +110,20 @@ Method DELETE
         console.log(result);
     });
 ```
+## events
+This module provides three custom events in the dashboard: `get`, `upload`, `delete`  
+They contains the following variables:
+-  `ctx`: more documentation on [docs.deployd.com](http://docs.deployd.com/docs/collections/reference/event-api.html#s-ctx <!-- ctx -->-764)
+-  the `upload` event also contains the following objects:
+	- `url`
+	- `filename`
+	- `originalFilename`
+	- `filesize`
+	- `uniqueFilename`
+	- `subdir`  
+	- 
+
+[Example on dpd-fileupload-demo](https://github.com/NicolasRitouet/dpd-fileupload-demo/blob/master/resources/upload/upload.js)
 
 
 ## Changelog
