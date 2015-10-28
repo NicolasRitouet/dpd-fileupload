@@ -120,8 +120,8 @@ They contains the following variables:
 	- `originalFilename`
 	- `filesize`
 	- `uniqueFilename`
-	- `subdir`  
-	- 
+	- `subdir`
+
 
 [Example on dpd-fileupload-demo](https://github.com/NicolasRitouet/dpd-fileupload-demo/blob/master/resources/upload/upload.js)
 
