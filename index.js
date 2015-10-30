@@ -183,14 +183,18 @@ Fileupload.prototype.handle = function (ctx, next) {
         return req.resume();
     } else if (req.method === "GET") {
 
-        if (this.events.get) {
-            this.events.get.run(ctx, domain, function(err) {
-                if (err) return ctx.done(err);
-                self.get(ctx, next);
-            });
-        } else {
-            this.get(ctx, next);
-        }
+		this.get(ctx, function(err, result) {
+			if (err) return ctx.done(err);
+			else if (this.events.get) {
+				domain['this'] = result;
+				this.events.get.run(ctx, domain, function(err) {
+					if (err) return ctx.done(err);
+					ctx.done(null, result);
+				});
+			} else {
+				ctx.done(err, result);
+			}
+		});
 
     } else if (req.method === "DELETE") {
 
@@ -210,12 +214,9 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 Fileupload.prototype.get = function(ctx, next) {
     var self = this;
+	ctx.query.id = ctx.query.id || ctx.url.split('/')[1];
 
-    if (!ctx.query.id) {
-        self.store.find(ctx.query, function(err, result) {
-            ctx.done(err, result);
-        });
-    }
+	self.store.find(ctx.query, next);
 };
 
 // Delete a file
