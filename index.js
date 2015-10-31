@@ -185,9 +185,11 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 		this.get(ctx, function(err, result) {
 			if (err) return ctx.done(err);
-			else if (this.events.get) {
+			else if (self.events.get) {
+				domain.data = result;
 				domain['this'] = result;
-				this.events.get.run(ctx, domain, function(err) {
+				
+				self.events.get.run(ctx, domain, function(err) {
 					if (err) return ctx.done(err);
 					ctx.done(null, result);
 				});
@@ -214,7 +216,9 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 Fileupload.prototype.get = function(ctx, next) {
     var self = this;
-	ctx.query.id = ctx.query.id || ctx.url.split('/')[1];
+	var id = ctx.url.split('/')[1];
+	if (id.length > 0)
+		ctx.query.id = id;
 
 	self.store.find(ctx.query, next);
 };
