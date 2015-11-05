@@ -113,7 +113,26 @@ describe('Integration tests for dpd-fileupload', function() {
       done();
     });
   });
-
+  
+  it('get one file info', function(done) {
+    request.get(endpoint, function(err, response, body) {
+      if (err) throw err;
+        body = JSON.parse(body);
+      expect(response.statusCode).to.be.equal(200);
+      expect(body).to.be.length(2);
+      expect(body[0].id).to.be.defined;
+    
+      response.get(endpoint + body[0].id, function(err, response, body) {
+        body = JSON.parse(body);
+        expect(response.statusCode).to.be.equal(200);
+        expect(body).to.be.instanceof(Object);
+        expect(body.id).to.be.defined;
+        expect(body.filename).to.be.defined;
+        expect(body.filename).to.equal(imageFilename);
+        done();
+      });
+    });
+  });
 
   it('delete the uploaded files', function(done) {
     request.get(endpoint, function(err, response, body) {
