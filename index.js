@@ -77,7 +77,7 @@ Fileupload.prototype.handle = function (ctx, next) {
             uploadDir = this.config.fullDirectory,
             resultFiles = [],
             remainingFile = 0,
-            storedObject = {},
+            storedProperties = {},
             uniqueFilename = false,
             subdir;
 
@@ -115,9 +115,9 @@ Fileupload.prototype.handle = function (ctx, next) {
 
                 // Store any param in the object
                 try {
-                    storedObject[propertyName] = JSON.parse(req.query[propertyName]);
+                    storedProperties[propertyName] = JSON.parse(req.query[propertyName]);
                 } catch (e) {
-                    storedObject[propertyName] = req.query[propertyName];
+                    storedProperties[propertyName] = req.query[propertyName];
                 }
             }
         }
@@ -128,6 +128,7 @@ Fileupload.prototype.handle = function (ctx, next) {
             fs.rename(file.path, path.join(uploadDir, file.name), function(err) {
                 if (err) return processDone(err);
                 debug("File renamed after event.upload.run: %j", err || path.join(uploadDir, file.name));
+				var storedObject = _.clone(storedProperties);
                 storedObject.filename = file.name;
                 if (uniqueFilename) {
                     storedObject.originalFilename = file.originalFilename;

@@ -122,7 +122,7 @@ describe('Integration tests for dpd-fileupload', function() {
       expect(body).to.be.length(2);
       expect(body[0].id).to.be.defined;
     
-      response.get(endpoint + body[0].id, function(err, response, body) {
+      request.get(endpoint + body[0].id, function(err, response, body) {
         body = JSON.parse(body);
         expect(response.statusCode).to.be.equal(200);
         expect(body).to.be.instanceof(Object);
