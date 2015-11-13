@@ -105,7 +105,7 @@ If you would like more security and some rights management to get the files, [fi
 Method DELETE
 
 ```js
-    dpd.fileupload.delete(id, function(result, err) {
+    dpd.fileupload.del(id, function(result, err) {
         if (err) alert(err);
         console.log(result);
     });
