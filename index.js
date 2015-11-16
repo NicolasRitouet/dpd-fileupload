@@ -77,7 +77,7 @@ Fileupload.prototype.handle = function (ctx, next) {
             uploadDir = this.config.fullDirectory,
             resultFiles = [],
             remainingFile = 0,
-            storedObject = {},
+            storedProperties = {},
             uniqueFilename = false,
             subdir;
 
@@ -115,9 +115,9 @@ Fileupload.prototype.handle = function (ctx, next) {
 
                 // Store any param in the object
                 try {
-                    storedObject[propertyName] = JSON.parse(req.query[propertyName]);
+                    storedProperties[propertyName] = JSON.parse(req.query[propertyName]);
                 } catch (e) {
-                    storedObject[propertyName] = req.query[propertyName];
+                    storedProperties[propertyName] = req.query[propertyName];
                 }
             }
         }
@@ -128,6 +128,7 @@ Fileupload.prototype.handle = function (ctx, next) {
             fs.rename(file.path, path.join(uploadDir, file.name), function(err) {
                 if (err) return processDone(err);
                 debug("File renamed after event.upload.run: %j", err || path.join(uploadDir, file.name));
+				var storedObject = _.clone(storedProperties);
                 storedObject.filename = file.name;
                 if (uniqueFilename) {
                     storedObject.originalFilename = file.originalFilename;
@@ -183,14 +184,20 @@ Fileupload.prototype.handle = function (ctx, next) {
         return req.resume();
     } else if (req.method === "GET") {
 
-        if (this.events.get) {
-            this.events.get.run(ctx, domain, function(err) {
-                if (err) return ctx.done(err);
-                self.get(ctx, next);
-            });
-        } else {
-            this.get(ctx, next);
-        }
+		this.get(ctx, function(err, result) {
+			if (err) return ctx.done(err);
+			else if (self.events.get) {
+				domain.data = result;
+				domain['this'] = result;
+				
+				self.events.get.run(ctx, domain, function(err) {
+					if (err) return ctx.done(err);
+					ctx.done(null, result);
+				});
+			} else {
+				ctx.done(err, result);
+			}
+		});
 
     } else if (req.method === "DELETE") {
 
@@ -210,12 +217,11 @@ Fileupload.prototype.handle = function (ctx, next) {
 
 Fileupload.prototype.get = function(ctx, next) {
     var self = this;
+	var id = ctx.url.split('/')[1];
+	if (id.length > 0)
+		ctx.query.id = id;
 
-    if (!ctx.query.id) {
-        self.store.find(ctx.query, function(err, result) {
-            ctx.done(err, result);
-        });
-    }
+	self.store.find(ctx.query, next);
 };
 
 // Delete a file
