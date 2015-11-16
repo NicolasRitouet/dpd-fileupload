@@ -128,7 +128,7 @@ describe('Integration tests for dpd-fileupload', function() {
         expect(body).to.be.instanceof(Object);
         expect(body.id).to.be.defined;
         expect(body.filename).to.be.defined;
-        expect(body.filename).to.equal(imageFilename);
+        expect([imageFilename, txtFilename]).to.include(body.filename);
         done();
       });
     });
