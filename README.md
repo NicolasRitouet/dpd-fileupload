@@ -127,6 +127,8 @@ They contains the following variables:
 
 
 ## Changelog
+- [0.0.16](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.16)  
+	- add single file get #40 [PR #40](https://github.com/NicolasRitouet/dpd-fileupload/pull/40) (Thanks [@EvilDrW](https://github.com/EvilDrW))
 - [0.0.15](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.15)  
 	- Add data in upload event.
 	- Partial fix of `E11000 error` [PR #36](https://github.com/NicolasRitouet/dpd-fileupload/pull/36) (Thanks [@hjanuschka](https://github.com/hjanuschka)). The rest of the fix is on Deployd side ([#653](https://github.com/deployd/deployd/issues/653))
