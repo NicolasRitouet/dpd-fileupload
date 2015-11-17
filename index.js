@@ -130,6 +130,7 @@ Fileupload.prototype.handle = function (ctx, next) {
                 debug("File renamed after event.upload.run: %j", err || path.join(uploadDir, file.name));
 				var storedObject = _.clone(storedProperties);
                 storedObject.filename = file.name;
+                storedObject.subdir = path.relative(publicDir, uploadDir);
                 if (uniqueFilename) {
                     storedObject.originalFilename = file.originalFilename;
                 }
@@ -183,21 +184,20 @@ Fileupload.prototype.handle = function (ctx, next) {
             });
         return req.resume();
     } else if (req.method === "GET") {
-
-		this.get(ctx, function(err, result) {
-			if (err) return ctx.done(err);
-			else if (self.events.get) {
-				domain.data = result;
-				domain['this'] = result;
-				
-				self.events.get.run(ctx, domain, function(err) {
-					if (err) return ctx.done(err);
-					ctx.done(null, result);
-				});
-			} else {
-				ctx.done(err, result);
-			}
-		});
+	this.get(ctx, function(err, result) {
+		if (err) return ctx.done(err);
+		else if (self.events.get) {
+			domain.data = result;
+			domain['this'] = result;
+			
+			self.events.get.run(ctx, domain, function(err) {
+				if (err) return ctx.done(err);
+				ctx.done(null, result);
+			});
+		} else {
+			ctx.done(err, result);
+		}
+	});
 
     } else if (req.method === "DELETE") {
 
