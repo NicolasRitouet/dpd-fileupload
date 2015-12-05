@@ -54,7 +54,7 @@ util.inherits(Fileupload, Resource);
 Fileupload.label = "File upload";
 Fileupload.events = ["get", "upload", "delete"];
 Fileupload.prototype.clientGeneration = true;
-Fileupload.basicDashboard = {
+/*Fileupload.basicDashboard = {
     settings: [
         {
             name: 'directory',
@@ -62,6 +62,18 @@ Fileupload.basicDashboard = {
             description: 'Directory to save the uploaded files. Defaults to \'upload\'.'
         }
     ]
+};*/
+Fileupload.dashboard = {
+  path: path.join(__dirname, 'dashboard')
+  , pages: ['Configuration', 'Data', 'Events']
+  , scripts: [
+      '/js/lib/jquery-ui-1.8.22.custom.min.js'
+    , '/js/lib/knockout-2.1.0.js'
+    , '/js/lib/knockout.mapping.js'
+    , '/js/util/knockout-util.js'
+    , '/js/util/key-constants.js'
+    , '/js/util.js'
+  ]
 };
 
 /**
