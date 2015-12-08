@@ -66,7 +66,7 @@ Fileupload.basicDashboard = {
         {
             name: 'authorization',
             type: 'checkbox',
-            description: 'Do you require user to be loggedin to upload / delete files ?'
+            description: 'Do you require user to be logged-in to view / upload / delete files ?'
         },
         {
             name: 'uniqueFilename',
@@ -87,7 +87,7 @@ Fileupload.prototype.handle = function (ctx, next) {
     var me = ctx.session.user;
 
     if (this.config.authorization && !me) {
-	   return ctx.done(null, {statusCode: 403, message: "You're not authorized to upload / modify files."});
+	   return ctx.done({statusCode: 403, message: "You're not authorized to upload / modify files."});
     }
 
     if (req.method === "POST" || req.method === "PUT") {
@@ -217,7 +217,7 @@ Fileupload.prototype.handle = function (ctx, next) {
 			else if (self.events.get) {
 				domain.data = result;
 				domain['this'] = result;
-				
+
 				self.events.get.run(ctx, domain, function(err) {
 					if (err) return ctx.done(err);
 					ctx.done(null, result);
@@ -269,7 +269,7 @@ Fileupload.prototype.del = function(ctx, next) {
             if (result.subdir !== null) {
                 subdir = result.subdir;
             }
-	    
+
             self.store.remove({id: fileId}, function(err) {
                 if (err) return ctx.done(err);
                 //Fixed in case you don't upload to a subdir

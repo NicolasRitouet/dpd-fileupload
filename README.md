@@ -122,8 +122,12 @@ They contains the following variables:
 	- `uniqueFilename`
 	- `subdir`
 
-
 [Example on dpd-fileupload-demo](https://github.com/NicolasRitouet/dpd-fileupload-demo/blob/master/resources/upload/upload.js)
+
+## authentication
+Thanks to [@Mortgy](https://github.com/Mortgy), we now have authentication within `dpd-fileupload`.  
+There's a new checkbox in the dashboard to configure the authorization. If you need your users to be logged-in to view, upload or delete the files, this checkbox is yours!
+If your users are logged-in with `deployd`, they'll have access to the resources.
 
 
 ## Changelog
