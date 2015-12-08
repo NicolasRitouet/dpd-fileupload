@@ -36,6 +36,7 @@ function Fileupload(options) {
         directory: this.config.directory || 'upload',
         fullDirectory: path.join(__dirname, publicDir, (this.config.directory || 'upload')),
         authorization: this.config.authorization || false,
+        reqGetAuthorization: this.config.reqGetAuthorization || false,
         uniqueFilename: this.config.uniqueFilename  || false
     };
 
@@ -66,7 +67,12 @@ Fileupload.basicDashboard = {
         {
             name: 'authorization',
             type: 'checkbox',
-            description: 'Do you require user to be logged-in to view / upload / delete files ?'
+            description: 'Do you require user to be logged-in to upload / delete files ?'
+        },
+        {
+            name: 'reqGetAuthorization',
+            type: 'checkbox',
+            description: 'Do you require user to be logged-in to view files ?'
         },
         {
             name: 'uniqueFilename',
@@ -86,11 +92,12 @@ Fileupload.prototype.handle = function (ctx, next) {
 
     var me = ctx.session.user;
 
-    if (this.config.authorization && !me) {
-	   return ctx.done({statusCode: 403, message: "You're not authorized to upload / modify files."});
-    }
-
     if (req.method === "POST" || req.method === "PUT") {
+
+        if (this.config.authorization && !me) {
+            return ctx.done({statusCode: 403, message: "You're not authorized to upload files."});
+        }
+
         var form = new formidable.IncomingForm(),
             uploadDir = this.config.fullDirectory,
             resultFiles = [],
@@ -212,6 +219,10 @@ Fileupload.prototype.handle = function (ctx, next) {
         return req.resume();
     } else if (req.method === "GET") {
 
+        if (this.config.reqGetAuthorization && !me) {
+            return ctx.done(null, {statusCode: 403, message: "You're not authorized to view files."});
+        }
+
 		this.get(ctx, function(err, result) {
 			if (err) return ctx.done(err);
 			else if (self.events.get) {
@@ -228,6 +239,10 @@ Fileupload.prototype.handle = function (ctx, next) {
 		});
 
     } else if (req.method === "DELETE") {
+
+        if (this.config.authorization && !me) {
+            return ctx.done({statusCode: 403, message: "You're not authorized to delete files."});
+        }
 
         if (this.events['delete']) {
             this.events['delete'].run(ctx, domain, function(err) {
