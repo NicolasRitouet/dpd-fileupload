@@ -34,7 +34,9 @@ function Fileupload(options) {
 
     this.config = {
         directory: this.config.directory || 'upload',
-        fullDirectory: path.join(__dirname, publicDir, (this.config.directory || 'upload'))
+        fullDirectory: path.join(__dirname, publicDir, (this.config.directory || 'upload')),
+        authorization: this.config.authorization || false,
+        uniqueFilename: this.config.uniqueFilename  || false
     };
 
     if (this.name === this.config.directory) {
@@ -60,6 +62,16 @@ Fileupload.basicDashboard = {
             name: 'directory',
             type: 'text',
             description: 'Directory to save the uploaded files. Defaults to \'upload\'.'
+        },
+        {
+            name: 'authorization',
+            type: 'checkbox',
+            description: 'Do you require user to be loggedin to upload / delete files ?'
+        },
+        {
+            name: 'uniqueFilename',
+            type: 'checkbox',
+            description: 'Allow unique file name ?'
         }
     ]
 };
@@ -72,14 +84,25 @@ Fileupload.prototype.handle = function (ctx, next) {
         self = this,
         domain = {url: ctx.url};
 
+    var me = ctx.session.user;
+
+    if (this.config.authorization && !me) {
+	   return ctx.done(null, {statusCode: 403, message: "You're not authorized to upload / modify files."});
+    }
+
     if (req.method === "POST" || req.method === "PUT") {
         var form = new formidable.IncomingForm(),
             uploadDir = this.config.fullDirectory,
             resultFiles = [],
             remainingFile = 0,
             storedProperties = {},
-            uniqueFilename = false,
-            subdir;
+            uniqueFilename = this.config.uniqueFilename,
+	        subdir,
+            uploaderId;
+
+            if (this.config.authorization && me) {
+                uploaderId = me.id;
+            };
 
         // Will send the response if all files have been processed
         var processDone = function(err) {
@@ -123,6 +146,7 @@ Fileupload.prototype.handle = function (ctx, next) {
         }
 
         form.uploadDir = uploadDir;
+        var config = this.config;
 
         var renameAndStore = function(file) {
             fs.rename(file.path, path.join(uploadDir, file.name), function(err) {
@@ -135,6 +159,10 @@ Fileupload.prototype.handle = function (ctx, next) {
                 }
                 storedObject.filesize = file.size;
                 storedObject.creationDate = new Date().getTime();
+
+                if (config.authorization && me) {
+                    storedObject.uploaderId = me.id;
+                }
 
                 // Store MIME type in object
                 storedObject.type = mime.lookup(file.name);
@@ -228,9 +256,12 @@ Fileupload.prototype.get = function(ctx, next) {
 Fileupload.prototype.del = function(ctx, next) {
     var self = this,
         fileId = ctx.url.split('/')[1],
-        uploadDir = this.config.fullDirectory;
+        uploadDir = this.config.fullDirectory,
+        me = ctx.session.user;
 
-    this.store.find({id: fileId}, function(err, result) {
+        var findObj = this.config.authorization ? {id: fileId, uploaderId: me.id} : {id: fileId};
+
+    this.store.find(findObj, function(err, result) {
         if (err) return ctx.done(err);
         debug('found %j', err || result || 'none');
         if (typeof result !== 'undefined') {
@@ -238,6 +269,7 @@ Fileupload.prototype.del = function(ctx, next) {
             if (result.subdir !== null) {
                 subdir = result.subdir;
             }
+	    
             self.store.remove({id: fileId}, function(err) {
                 if (err) return ctx.done(err);
                 //Fixed in case you don't upload to a subdir
