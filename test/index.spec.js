@@ -9,7 +9,7 @@ var fs = require('fs'),
 var endpoint = 'http://localhost:3000/upload/',
     imageFilename = 'bear.jpg',
     txtFilename = 'example.txt',
-    uploadedFolder = 'upload_';
+    uploadedFolder = '_upload';
 
 
 describe('Integration tests for dpd-fileupload', function() {
