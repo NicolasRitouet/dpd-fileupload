@@ -105,7 +105,7 @@ If you would like more security and some rights management to get the files, [fi
 Method DELETE
 
 ```js
-    dpd.fileupload.delete(id, function(result, err) {
+    dpd.fileupload.del(id, function(result, err) {
         if (err) alert(err);
         console.log(result);
     });
@@ -122,12 +122,21 @@ They contains the following variables:
 	- `uniqueFilename`
 	- `subdir`
 
-
 [Example on dpd-fileupload-demo](https://github.com/NicolasRitouet/dpd-fileupload-demo/blob/master/resources/upload/upload.js)
+
+## authentication
+Thanks to [@Mortgy](https://github.com/Mortgy), we now have authentication within `dpd-fileupload`.  
+There's a new checkbox in the dashboard to configure the authorization. If you need your users to be logged-in to view, upload or delete the files, this checkbox is yours!
+If your users are logged-in with `deployd`, they'll have access to the resources.
 
 
 ## Changelog
-- [0.0.15](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/0.0.15)  
+- [0.0.17](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v0.0.17)  
+	- Implemented user authentication configuration to allow file uploading / deleting for loggedin users [PR #43](https://github.com/NicolasRitouet/dpd-fileupload/pull/43) (Thanks [@Mortgy](https://github.com/Mortgy))
+	- unique filename enabling could be configured in configuration [PR #43](https://github.com/NicolasRitouet/dpd-fileupload/pull/43) (Thanks [@Mortgy](https://github.com/Mortgy))
+- [0.0.16](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v0.0.16)  
+	- add single file get #40 [PR #40](https://github.com/NicolasRitouet/dpd-fileupload/pull/40) (Thanks [@EvilDrW](https://github.com/EvilDrW))
+- [0.0.15](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v0.0.15)  
 	- Add data in upload event.
 	- Partial fix of `E11000 error` [PR #36](https://github.com/NicolasRitouet/dpd-fileupload/pull/36) (Thanks [@hjanuschka](https://github.com/hjanuschka)). The rest of the fix is on Deployd side ([#653](https://github.com/deployd/deployd/issues/653))
 	- Switch to new md5 dependency (MD5 was deprecated). [PR #31](https://github.com/NicolasRitouet/dpd-fileupload/pull/31)
