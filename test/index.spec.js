@@ -35,10 +35,10 @@ describe('Integration tests for dpd-fileupload', function() {
 
   it('upload an image', function(done) {
     var formData = {
-      uniqueFilename: 'true',
+      subdir: 'images',
       uploadedFile: fs.createReadStream(path.join(__dirname, imageFilename))
     };
-    request.post({url: endpoint + '?subdir=images', formData: formData}, function(err, httpResponse, body) {
+    request.post({url: endpoint, formData: formData}, function(err, httpResponse, body) {
       if (err) throw err;
       body = JSON.parse(body)[0];
       expect(body).to.not.be.empty;
@@ -128,7 +128,7 @@ describe('Integration tests for dpd-fileupload', function() {
         expect(body).to.be.instanceof(Object);
         expect(body.id).to.be.defined;
         expect(body.filename).to.be.defined;
-        expect([imageFilename, txtFilename]).to.include(body.filename);
+        expect([imageFilename, txtFilename]).to.include(body.originalFilename);
         done();
       });
     });
