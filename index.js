@@ -3,305 +3,234 @@
 /**
  * Module dependencies
  */
-var Resource   = require('deployd/lib/resource'),
-    util       = require('util'),
-    path       = require('path'),
-    debug      = require('debug')('dpd-fileupload'),
-    formidable = require('formidable'),
-    fs         = require('fs'),
-    md5        = require('md5'),
-    mime       = require('mime'),
-    _          = require('lodash'),
-    env        = process.server.options && process.server.options.env || null,
-    publicDir  = "/../../public";
+var	fs = require('fs'),
+	util		= require('util'),
+	path		= require('path'),
+	publicDir	= "/../../public",
+	debug		= require('debug')('dpd-fileupload'),
+	formidable	= require('formidable'),
+	md5			= require('md5'),
+	mime		= require('mime'),
 
-/**
- * Module setup.
- */
-function Fileupload(options) {
+	Collection	= require('deployd/lib/resources/collection');
 
-    Resource.apply(this, arguments);
-
-    this.store = process.server.createStore(this.name + "fileupload");
-
-    if(env){
-        var dirToCheck = publicDir + "-" + env,
-        publicDirExists = fs.existsSync(__dirname + dirToCheck);
-        if(publicDirExists) {
-            publicDir = dirToCheck;
-        }
-    }
-
-    this.config = {
-        directory: this.config.directory || 'upload',
-        fullDirectory: path.join(__dirname, publicDir, (this.config.directory || 'upload')),
-        authorization: this.config.authorization || false,
-        reqGetAuthorization: this.config.reqGetAuthorization || false,
-        uniqueFilename: this.config.uniqueFilename  || false
-    };
-
-    if (this.name === this.config.directory) {
-        this.config.directory = this.config.directory + "_";
-    }
-
-    // If the directory doesn't exists, we'll create it
-    try {
-        fs.statSync(this.config.fullDirectory).isDirectory();
-    } catch (er) {
-        fs.mkdir(this.config.fullDirectory);
-    }
+function Fileupload(name, options) {
+	Collection.apply(this, arguments);
+	
+	// check to see if config has everything we need...
+	if (!this.config.properties || !this.config.directory || !this.config.fullDirectory) {
+		var dir = "_" + name;
+		this.config.properties = {
+			filesize: {
+				name: "filesize",
+				type: "number",
+				typeLabel: "number",
+				required: true,
+				id: "filesize",
+				order: 0
+			},
+			filename: {
+				name: "filename",
+				type: "string",
+				typeLabel: "string",
+				required: true,
+				id: "filename",
+				order: 0
+			},
+			originalFilename: {
+				name: "originalFilename",
+				type: "string",
+				typeLabel: "string",
+				required: true,
+				id: "originalFilename",
+				order: 0
+			},
+			subdir: {
+				name: "subdir",
+				type: "string",
+				typeLabel: "string",
+				required: false,
+				id: "subdir",
+				order: 0
+			},
+			creationDate: {
+				name: "creationDate",
+				type: "number",
+				typeLabel: "number",
+				required: true,
+				id: "creationDate",
+				order: 0
+			},
+			type: {
+				name: "type",
+				type: "string",
+				typeLabel: "string",
+				required: true,
+				id: "type",
+				order: 0
+			}
+		};
+		this.properties = this.config.properties;
+		
+		this.config.directory = dir;
+		this.config.fullDirectory = path.join(__dirname, publicDir, dir);
+		
+		// write the config file since it was apparently incomplete before
+		fs.writeFile(path.join(options.configPath, 'config.json'), JSON.stringify(this.config), function(err) {
+			if (err) throw err;
+		});
+	}
+	
+	// If the directory doesn't exist, we'll create it
+	try {
+		fs.statSync(this.config.fullDirectory).isDirectory();
+	} catch (er) {
+		fs.mkdir(this.config.fullDirectory);
+	}
 }
 
-util.inherits(Fileupload, Resource);
+util.inherits(Fileupload, Collection);
 
-Fileupload.label = "File upload";
-Fileupload.events = ["get", "upload", "delete"];
-Fileupload.prototype.clientGeneration = true;
-Fileupload.basicDashboard = {
-    settings: [
-        {
-            name: 'directory',
-            type: 'text',
-            description: 'Directory to save the uploaded files. Defaults to \'upload\'.'
-        },
-        {
-            name: 'authorization',
-            type: 'checkbox',
-            description: 'Do you require user to be logged-in to upload / delete files ?'
-        },
-        {
-            name: 'reqGetAuthorization',
-            type: 'checkbox',
-            description: 'Do you require user to be logged-in to view files ?'
-        },
-        {
-            name: 'uniqueFilename',
-            type: 'checkbox',
-            description: 'Allow unique file name ?'
-        }
-    ]
-};
+Fileupload.events = ["Get", "Post", "Delete"];
+Fileupload.dashboard = Collection.dashboard;
 
 /**
  * Module methods
  */
 Fileupload.prototype.handle = function (ctx, next) {
-    var req = ctx.req,
-        self = this,
-        domain = {url: ctx.url};
+	ctx.query.id = ctx.query.id || this.parseId(ctx) || (ctx.body && ctx.body.id);
+	var req = ctx.req,
+		self = this;
 
-    var me = ctx.session.user;
+	if (req.method === "POST") { // not clear what to do with PUTs yet...
+		ctx.body = {};
+		
+		var form = new formidable.IncomingForm(),
+			uploadDir = this.config.fullDirectory,
+			resultFiles = [],
+			remainingFile = 0;
 
-    if (req.method === "POST" || req.method === "PUT") {
-
-        if (this.config.authorization && !me) {
-            return ctx.done({statusCode: 403, message: "You're not authorized to upload files."});
-        }
-
-        var form = new formidable.IncomingForm(),
-            uploadDir = this.config.fullDirectory,
-            resultFiles = [],
-            remainingFile = 0,
-            storedProperties = {},
-            uniqueFilename = this.config.uniqueFilename,
-	        subdir,
-            uploaderId;
-
-            if (this.config.authorization && me) {
-                uploaderId = me.id;
-            };
-
-        // Will send the response if all files have been processed
-        var processDone = function(err) {
-            if (err) return ctx.done(err);
-            remainingFile--;
-            if (remainingFile === 0) {
-                debug("Response sent: ", resultFiles);
-                return ctx.done(null, resultFiles);
-            }
-        };
-
-        // If we received params from the request
-        if (typeof req.query !== 'undefined') {
-            for (var propertyName in req.query) {
-                debug("Query param found: { %j:%j } ", propertyName, req.query[propertyName]);
-
-                if (propertyName === 'subdir') {
-                    debug("Subdir found: %j", req.query[propertyName]);
-                    subdir = req.query[propertyName];
-                    uploadDir = path.join(uploadDir, subdir);
-                    // If the sub-directory doesn't exists, we'll create it
-                    try {
-                        fs.statSync(uploadDir).isDirectory();
-                    } catch (er) {
-                        fs.mkdir(uploadDir);
-                    }
-
-                } else if (propertyName === 'uniqueFilename') {
-                    debug("uniqueFilename found: %j", req.query[propertyName]);
-                    uniqueFilename = (req.query[propertyName] === 'true');
-                    continue; // skip to the next param since we don't need to store this value
-                }
-
-                // Store any param in the object
-                try {
-                    storedProperties[propertyName] = JSON.parse(req.query[propertyName]);
-                } catch (e) {
-                    storedProperties[propertyName] = req.query[propertyName];
-                }
-            }
-        }
-
-        form.uploadDir = uploadDir;
-        var config = this.config;
-
-        var renameAndStore = function(file) {
-            fs.rename(file.path, path.join(uploadDir, file.name), function(err) {
-                if (err) return processDone(err);
-                debug("File renamed after event.upload.run: %j", err || path.join(uploadDir, file.name));
-				var storedObject = _.clone(storedProperties);
-                storedObject.filename = file.name;
-                if (uniqueFilename) {
-                    storedObject.originalFilename = file.originalFilename;
-                }
-                storedObject.filesize = file.size;
-                storedObject.creationDate = new Date().getTime();
-
-                if (config.authorization && me) {
-                    storedObject.uploaderId = me.id;
-                }
-
-                // Store MIME type in object
-                storedObject.type = mime.lookup(file.name);
-                if (storedObject.id) delete storedObject.id;
-                if (storedObject._id) delete storedObject._id;
-
-                self.store.insert(storedObject, function(err, result) {
-                    if (err) return processDone(err);
-                    debug('stored after event.upload.run %j', err || result || 'none');
-                    var cloneResult = _.clone(result);
-                    resultFiles.push(cloneResult);
-                    processDone();
-                });
-
-            });
-        };
-
-        form.parse(req)
-            .on('file', function(name, file) {
-                debug("File %j received", file.name);
-                if (uniqueFilename) {
-                    file.originalFilename = file.name;
-                    file.name = md5(Date.now()) + '.' + file.name.split('.').pop();
-                }
-                if (self.events.upload) {
-                    self.events.upload.run(ctx, {
-                      url: ctx.url,
-                      filesize: file.size,
-                      filename: file.name,
-                      originalFilename: file.originalFilename,
-                      uniqueFilename: uniqueFilename,
-                      subdir: subdir
-                    }, function(err) {
-                        if (err) return processDone(err);
-                        renameAndStore(file);
-                    });
-                } else {
-                    renameAndStore(file);
-                }
-            }).on('fileBegin', function(name, file) {
-                remainingFile++;
-                debug("Receiving a file: %j", file.name);
-            }).on('error', function(err) {
-                debug("Error: %j", err);
-                return processDone(err);
-            });
-        return req.resume();
-    } else if (req.method === "GET") {
-
-        if (this.config.reqGetAuthorization && !me) {
-            return ctx.done(null, {statusCode: 403, message: "You're not authorized to view files."});
-        }
-
-		this.get(ctx, function(err, result) {
+		// Will send the response if all files have been processed
+		var processDone = function(err, fileInfo) {
 			if (err) return ctx.done(err);
-			else if (self.events.get) {
-				domain.data = result;
-				domain['this'] = result;
-
-				self.events.get.run(ctx, domain, function(err) {
-					if (err) return ctx.done(err);
-					ctx.done(null, result);
-				});
-			} else {
-				ctx.done(err, result);
+			resultFiles.push(fileInfo);
+			
+			remainingFile--;
+			if (remainingFile === 0) {
+				debug("Response sent: ", resultFiles);
+				return ctx.done(null, resultFiles); // TODO not clear what to do here yet
 			}
-		});
+		};
 
-    } else if (req.method === "DELETE") {
+		// If we received params from the request
+		if (typeof req.query !== 'undefined') {
+			for (var propertyName in req.query) {
+				debug("Query param found: { %j:%j } ", propertyName, req.query[propertyName]);
 
-        if (this.config.authorization && !me) {
-            return ctx.done({statusCode: 403, message: "You're not authorized to delete files."});
-        }
+				if (propertyName === 'subdir') {
+					debug("Subdir found: %j", req.query[propertyName]);
+					uploadDir = path.join(uploadDir, req.query.subdir);
+					// If the sub-directory doesn't exists, we'll create it
+					try {
+						fs.statSync(uploadDir).isDirectory();
+					} catch (er) {
+						fs.mkdir(uploadDir);
+					}
+				}
+				
+				ctx.body[propertyName] = req.query[propertyName];
+			}
+		}
 
-        if (this.events['delete']) {
-            this.events['delete'].run(ctx, domain, function(err) {
-                if (err) return ctx.done(err);
-                self.del(ctx, next);
-            });
-        } else {
-            this.del(ctx, next);
-        }
-    } else {
-        next();
-    }
-};
+		form.uploadDir = uploadDir;
 
+		var renameAndStore = function(file) {
+			fs.rename(file.path, path.join(uploadDir, file.name), function(err) {
+				if (err) return processDone(err);
+				debug("File renamed after event.upload.run: %j", err || path.join(uploadDir, file.name));
+				
+				ctx.body.filename = file.name;
+				ctx.body.originalFilename = file.originalFilename;
+				
+				ctx.body.filesize = file.size;
+				ctx.body.creationDate = new Date().getTime();
 
-Fileupload.prototype.get = function(ctx, next) {
-    var self = this;
-	var id = ctx.url.split('/')[1];
-	if (id.length > 0)
-		ctx.query.id = id;
+				// Store MIME type in object
+				ctx.body.type = mime.lookup(file.name);
+				
+				self.save(ctx, processDone);
+			});
+		};
 
-	self.store.find(ctx.query, next);
+		form.parse(req)
+			.on('file', function(name, file) {
+				debug("File %j received", file.name);
+				file.originalFilename = file.name;
+				file.name = md5(Date.now()) + '.' + file.name.split('.').pop();
+				
+				renameAndStore(file);
+			}).on('fileBegin', function(name, file) {
+				remainingFile++;
+				debug("Receiving a file: %j", file.name);
+			}).on('error', function(err) {
+				debug("Error: %j", err);
+				return processDone(err);
+			});
+			
+		return req.resume();
+	} else if (req.method === "DELETE") {
+		this.del(ctx, ctx.done);
+	} else if (req.method === "PUT") {
+		ctx.done({ statusCode: 400, message: "PUT not yet supported" });
+	} else {
+		Collection.prototype.handle.apply(this, [ctx, next]);
+	}
 };
 
 // Delete a file
 Fileupload.prototype.del = function(ctx, next) {
-    var self = this,
-        fileId = ctx.url.split('/')[1],
-        uploadDir = this.config.fullDirectory,
-        me = ctx.session.user;
-
-        var findObj = this.config.authorization ? {id: fileId, uploaderId: me.id} : {id: fileId};
-
-    this.store.find(findObj, function(err, result) {
-        if (err) return ctx.done(err);
-        debug('found %j', err || result || 'none');
-        if (typeof result !== 'undefined') {
-            var subdir = "";
-            if (result.subdir !== null) {
-                subdir = result.subdir;
-            }
-
-            self.store.remove({id: fileId}, function(err) {
-                if (err) return ctx.done(err);
-                //Fixed in case you don't upload to a subdir
-                if(subdir){
-                    fs.unlink(path.join(uploadDir, subdir, result.filename), function(err) {
-                        if (err) return ctx.done(err);
-                        ctx.done(null, {statusCode: 200, message: "File " + result.filename + " successfuly deleted"});
-                    });
-                } else {
-                    fs.unlink(path.join(uploadDir, result.filename), function(err) {
-                        if (err) return ctx.done(err);
-                        ctx.done(null, {statusCode: 200, message: "File " + result.filename + " successfuly deleted"});
-                    });
-                }
-            });
-        }
-    });
+	var self = this;
+	var uploadDir = this.config.fullDirectory;
+	
+	this.find(ctx, function(err, result) {
+		if (err) return ctx.done(err);
+		
+		// let the collection handle the store... we just care about the files themselves
+		self.remove(ctx, function(err) {
+			if (err) return ctx.done(err);
+			
+			if (typeof result == 'undefined')
+				result = [];
+			else if (!Array.isArray(result))
+				result = [result];
+			
+			var filesRemaining = result.length;
+			
+			var finishedFcn = function(err) {
+				if (err) return ctx.done(err);
+				filesRemaining--;
+				
+				if (filesRemaining === 0) {
+					var filenames = result.map(function(r) {
+						return r.originalFilename;
+					});
+					next({statusCode: 200, message: "File " + filenames + " successfuly deleted"});
+				}
+			};
+			
+			result.forEach(function(toDelete) {
+				var filepath;
+				if (toDelete.subdir)
+					filepath = path.join(uploadDir, toDelete.subdir, toDelete.filename);
+				else
+					filepath = path.join(uploadDir, toDelete.filename);
+				
+				// actually delete the file, let the Collection methods handle events and whatever else
+				debug('deleting file',filepath);
+				fs.unlink(filepath, finishedFcn);
+			});
+		});
+	});
 };
 
 /**
