@@ -131,7 +131,7 @@ If your users are logged-in with `deployd`, they'll have access to the resources
 
 
 ## Changelog
-- [1.0.0-alpha.0](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v1.0.0-alpha.0)  
+- [1.0.0-alpha.1](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v1.0.0-alpha.1)  
 	- preparing 1.0.0
   - refactor to inherit from collection, not resource (https://github.com/NicolasRitouet/dpd-fileupload/pull/47) (thanks [@EvilDrW](https://github.com/EvilDrW))
 - [0.0.17](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v0.0.17)  

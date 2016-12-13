@@ -1,7 +1,7 @@
 {
   "name": "dpd-fileupload",
   "description": "File uploader for Deployd",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "author": "Nicolas Ritouet <nicolas@ritouet.com>",
   "dependencies": {
     "debug": "2.3.3",
