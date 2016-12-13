@@ -1,4 +1,1 @@
-{
-	"type": "Fileupload",
-	"directory": "upload_"
-}
+{"type":"Fileupload","directory":"_upload","properties":{"filesize":{"name":"filesize","type":"number","typeLabel":"number","required":true,"id":"filesize","order":0},"filename":{"name":"filename","type":"string","typeLabel":"string","required":true,"id":"filename","order":0},"originalFilename":{"name":"originalFilename","type":"string","typeLabel":"string","required":true,"id":"originalFilename","order":0},"subdir":{"name":"subdir","type":"string","typeLabel":"string","required":false,"id":"subdir","order":0},"creationDate":{"name":"creationDate","type":"number","typeLabel":"number","required":true,"id":"creationDate","order":0},"type":{"name":"type","type":"string","typeLabel":"string","required":true,"id":"type","order":0}},"fullDirectory":"/Users/nicolas/development/deployd_workspace/dpd-fileupload/test/public/_upload"}

@@ -1,7 +1,7 @@
 {
   "name": "dpd-fileupload",
   "description": "File uploader for Deployd",
-  "version": "0.0.17",
+  "version": "1.0.0-alpha.0",
   "author": "Nicolas Ritouet <nicolas@ritouet.com>",
   "dependencies": {
     "debug": "2.3.3",
@@ -17,7 +17,7 @@
     "url": "https://github.com/NicolasRitouet/dpd-fileupload.git"
   },
   "engines": {
-    "node": ">= 0.11"
+    "node": ">= 0.12"
   },
   "license": "MIT",
   "bugs": {

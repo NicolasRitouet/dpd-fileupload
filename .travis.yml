@@ -3,6 +3,7 @@ language: node_js
 services:
   - mongodb
 node_js:
+  - 0.12
   - 4
   - 6
   - 7

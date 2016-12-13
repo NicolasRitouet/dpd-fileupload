@@ -131,6 +131,9 @@ If your users are logged-in with `deployd`, they'll have access to the resources
 
 
 ## Changelog
+- [1.0.0-alpha.0](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v1.0.0-alpha.0)  
+	- preparing 1.0.0
+  - refactor to inherit from collection, not resource (https://github.com/NicolasRitouet/dpd-fileupload/pull/47) (thanks [@EvilDrW](https://github.com/EvilDrW))
 - [0.0.17](https://github.com/NicolasRitouet/dpd-fileupload/releases/tag/v0.0.17)  
 	- Implemented user authentication configuration to allow file uploading / deleting for loggedin users [PR #43](https://github.com/NicolasRitouet/dpd-fileupload/pull/43) (Thanks [@Mortgy](https://github.com/Mortgy))
 	- unique filename enabling could be configured in configuration [PR #43](https://github.com/NicolasRitouet/dpd-fileupload/pull/43) (Thanks [@Mortgy](https://github.com/Mortgy))
